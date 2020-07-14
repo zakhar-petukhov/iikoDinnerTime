@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  nginx:
+    container_name: nginx
+    restart: unless-stopped
+    image: nginx:stable
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./dinner_time/media:/app/dinner_time/media
+    depends_on:
+      - server
+
+  db:
+    container_name: database
+    restart: always
+    image: postgres:11.6-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+  server:
+    container_name: api_server
+    restart: always
+    build: .
+    env_file:
+      - $ENV
+    expose:
+      - 8000
+    volumes:
+      - ./dinner_time/media:/app/dinner_time/media
+    command: scripts/docker-entrypoint.sh
+    depends_on:
+      - db
+
+  backups:
+    container_name: backup
+    restart: always
+    env_file:
+      - $ENV
+    build: .
+    depends_on:
+      - db
+    command: python scripts/backup.py
+
+
+volumes:
+  postgres_data:

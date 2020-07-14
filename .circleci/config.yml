@@ -1,0 +1,17 @@
+version: 2.0
+
+jobs:
+  build:
+    working_directory: ~/DinnerTime
+    docker:
+      - image: circleci/python:3.7
+
+    steps:
+      - checkout
+      - run:
+          command: |
+            pip install -r requirements.txt
+      - run:
+          command: |
+            cd dinner_time/ && pytest --cov=. && codecov
+
