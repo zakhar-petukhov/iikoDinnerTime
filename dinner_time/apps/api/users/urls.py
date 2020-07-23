@@ -1,9 +1,9 @@
 from django.urls import path
 from rest_framework import routers
 
-from api.authentication.views import UserChangeRegAuthDataView
-from api.common.views import ImageViewSet
-from api.users.views import *
+from apps.api.authentication.views import UserChangeRegAuthDataView
+from apps.api.common.views import ImageViewSet
+from apps.api.users.views import *
 
 app_name = "USERS"
 

@@ -4,7 +4,7 @@ from phonenumber_field.phonenumber import PhoneNumber
 from phonenumbers import NumberParseException
 from rest_framework import serializers
 
-from api.users.models import User
+from apps.api.users.models import User
 
 
 def get_and_authenticate_user(password, username=None):

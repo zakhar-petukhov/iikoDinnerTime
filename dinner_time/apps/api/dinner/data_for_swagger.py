@@ -12,17 +12,17 @@ request_for_dish = Schema(type=TYPE_OBJECT,
                                                    items=Items(enum={"id": TYPE_INTEGER},
                                                                type=TYPE_STRING))})
 
-request_for_complex_dinner = Schema(type=TYPE_OBJECT,
-                                    properties={
-                                        'name': Schema(type=TYPE_STRING, title='Название комплексного обеда'),
-                                        'dishes': Schema(type=TYPE_ARRAY, title='Блюда',
-                                                         items=Items(enum={
-                                                             'id': TYPE_INTEGER,
-                                                             'is_remove': TYPE_BOOLEAN,
-                                                             'added_dish': [{
-                                                                 'id': TYPE_INTEGER,
-                                                                 'is_remove': TYPE_BOOLEAN}],
-                                                         }, type=TYPE_STRING))})
+# request_for_complex_dinner = Schema(type=TYPE_OBJECT,
+#                                     properties={
+#                                         'name': Schema(type=TYPE_STRING, title='Название комплексного обеда'),
+#                                         'dishes': Schema(type=TYPE_ARRAY, title='Блюда',
+#                                                          items=Items(enum={
+#                                                              'id': TYPE_INTEGER,
+#                                                              'is_remove': TYPE_BOOLEAN,
+#                                                              'added_dish': [{
+#                                                                  'id': TYPE_INTEGER,
+#                                                                  'is_remove': TYPE_BOOLEAN}],
+#                                                          }, type=TYPE_STRING))})
 
 request_for_create_category_dish = Schema(type=TYPE_OBJECT,
                                           properties={

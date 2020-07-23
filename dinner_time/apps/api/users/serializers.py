@@ -2,8 +2,8 @@ from django.contrib.auth import get_user_model
 from phonenumber_field.phonenumber import PhoneNumber
 from rest_framework import serializers
 
-from api.common.serializers import ImagesSerializer
-from api.users.models import Tariff
+from apps.api.common.serializers import ImagesSerializer
+from apps.api.users.models import Tariff
 
 User = get_user_model()
 

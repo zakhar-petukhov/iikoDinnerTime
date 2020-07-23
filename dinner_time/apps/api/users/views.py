@@ -8,14 +8,14 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from api.company.utils import send_message
-from api.dinner.data_for_swagger import request_for_create_dinner
-from api.dinner.models import Dinner
-from api.dinner.serializers import DinnerSerializer
-from api.users.data_for_swagger import request_invite_users, request_for_change_user_information
-from api.users.permissions import IsCompanyAuthenticated
-from api.users.serializers import *
-from api.users.utils import *
+from apps.api.company.utils import send_message
+from apps.api.dinner.data_for_swagger import request_for_create_dinner
+from apps.api.dinner.models import Dinner
+from apps.api.dinner.serializers import DinnerSerializer
+from apps.api.users.data_for_swagger import request_invite_users, request_for_change_user_information
+from apps.api.users.permissions import IsCompanyAuthenticated
+from apps.api.users.serializers import *
+from apps.api.users.utils import *
 
 User = get_user_model()
 

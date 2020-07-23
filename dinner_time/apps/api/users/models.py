@@ -76,3 +76,9 @@ class Tariff(Model):
     max_cost_day = IntegerField(null=True, blank=True, verbose_name='Дневная сумма заказа')
     description = CharField(max_length=130, null=True, blank=True, verbose_name='Описание')
     is_blocked = BooleanField(default=False, verbose_name='Заблокирован')
+    unlimited = BooleanField(default=False, verbose_name='Безлимит')
+
+    class Meta:
+        verbose_name = 'Тариф на день'
+        verbose_name_plural = 'Тариф на день'
+

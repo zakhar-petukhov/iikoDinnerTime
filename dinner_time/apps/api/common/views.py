@@ -7,8 +7,8 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
-from api.common.models import Image
-from api.common.serializers import *
+from apps.api.common.models import Image
+from apps.api.common.serializers import *
 
 
 @method_decorator(name='list', decorator=swagger_auto_schema(

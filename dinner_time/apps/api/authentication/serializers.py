@@ -3,7 +3,7 @@ from phonenumber_field.phonenumber import PhoneNumber
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
-from api.users.models import User
+from apps.api.users.models import User
 
 
 class UserLoginSerializer(serializers.Serializer):

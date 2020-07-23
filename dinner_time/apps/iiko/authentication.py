@@ -1,3 +1,5 @@
+import json
+
 import requests
 from django.conf import settings
 from django.core.cache import cache
@@ -23,7 +25,7 @@ def get_token(refresh=False):
     if response.status_code >= 500:
         raise Exception('Произошла ошибка в сервисе iiko')
 
-    access_token = response.text
+    access_token = json.loads(response.text)
     cache.set('iiko_access_token', access_token, timeout=45 * 18)
 
     return access_token

@@ -1,9 +1,9 @@
 from phonenumber_field.phonenumber import PhoneNumber
 from rest_framework import serializers
 
-from api.company.models import Department, Company
-from api.users.models import User
-from api.users.serializers import UserSerializer
+from apps.api.company.models import Department, Company
+from apps.api.users.models import User
+from apps.api.users.serializers import UserSerializer
 
 
 class CompanyDetailSerializer(serializers.ModelSerializer):

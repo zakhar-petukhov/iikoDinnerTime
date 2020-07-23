@@ -11,13 +11,13 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from api.company.serializers import *
-from api.company.utils import create_user_or_company
-from api.dinner.models import Dinner, CompanyOrder
-from api.dinner.serializers import DinnerSerializer, DinnerHistoryOrderSerializer
-from api.users.models import User
-from api.users.permissions import IsCompanyAuthenticated
-from api.users.serializers import UserCreateSerializer
+from apps.api.company.serializers import *
+from apps.api.company.utils import create_user_or_company
+from apps.api.dinner.models import Dinner, CompanyOrder
+from apps.api.dinner.serializers import DinnerSerializer, DinnerHistoryOrderSerializer
+from apps.api.users.models import User
+from apps.api.users.permissions import IsCompanyAuthenticated
+from apps.api.users.serializers import UserCreateSerializer
 
 
 @method_decorator(name='post', decorator=swagger_auto_schema(

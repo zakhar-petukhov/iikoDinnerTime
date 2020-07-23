@@ -10,8 +10,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from api.users.serializers import EmptySerializer
-from api.common.models import ReferralLink
+from apps.api.users.serializers import EmptySerializer
+from apps.api.common.models import ReferralLink
 from .serializers import *
 from .utils import get_and_authenticate_user
 

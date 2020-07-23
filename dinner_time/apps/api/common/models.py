@@ -8,7 +8,7 @@ from django.db.models import *
 from django.utils.safestring import mark_safe
 from easy_thumbnails.fields import ThumbnailerImageField
 
-from api.common.storage import OverwriteStorage
+from apps.api.common.storage import OverwriteStorage
 
 
 class Settings(ConfigurationModel):
@@ -43,9 +43,6 @@ class Image(Model):
     dish = ForeignKey('dinner.Dish', on_delete=SET_NULL, null=True, blank=True, related_name='image_dish',
                       verbose_name='Блюдо')
 
-    complex_dinner = ForeignKey('dinner.ComplexDinner', on_delete=SET_NULL, null=True, blank=True,
-                                related_name='image_complex_dinner', verbose_name='Комплексный обед')
-
     info = CharField(max_length=20, verbose_name='Описание', blank=True, null=True)
     type = CharField(max_length=6, choices=[
         ('dish', 'Блюдо'),
@@ -59,9 +56,6 @@ class Image(Model):
 
         if self.type == 'dish':
             return os.path.join(f"{self.type}/{self.dish.id}/images/", filename_site)
-
-        elif self.type == 'complex_dinner':
-            return os.path.join(f"{self.type}/{self.complex_dinner.id}/images/", filename_site)
 
         elif self.type == 'avatar':
             return os.path.join(f"{self.type}/{self.user.id}/images/", filename_site)

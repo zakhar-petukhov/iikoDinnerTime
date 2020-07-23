@@ -3,8 +3,8 @@ from django.core.mail import EmailMessage
 from rest_framework import status
 from rest_framework.response import Response
 
-from api.users.models import User
-from api.users.utils import *
+from apps.api.users.models import User
+from apps.api.users.utils import *
 from apps.utils.func_for_send_message import *
 
 

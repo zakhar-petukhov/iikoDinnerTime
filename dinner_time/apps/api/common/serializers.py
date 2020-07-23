@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from api.common.models import Settings, Image
+from apps.api.common.models import Settings, Image
 
 
 class SettingsSerializer(serializers.ModelSerializer):
@@ -20,4 +20,4 @@ class ImagesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Image
-        fields = ('id', 'user', 'dish', 'complex_dinner', 'image', 'type')
+        fields = ('id', 'user', 'dish', 'image', 'type')

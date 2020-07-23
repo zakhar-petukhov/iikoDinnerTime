@@ -6,7 +6,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
-from api.dinner.serializers import *
+from apps.api.dinner.serializers import *
 from .data_for_swagger import *
 
 
@@ -103,57 +103,6 @@ class DishCategoryViewSet(ModelViewSet):
 
     def get_object(self):
         return get_object_or_404(CategoryDish, id=self.kwargs.get("dish_category_id"))
-
-
-@method_decorator(name='list', decorator=swagger_auto_schema(
-    operation_summary='Получение информации по комлпексным(-ому) обедам(-у).',
-    responses={
-        '200': openapi.Response('Успешно', ComplexDinnerSerializer),
-        '400': 'Неверный формат запроса'
-    }
-)
-                  )
-@method_decorator(name='update', decorator=swagger_auto_schema(
-    operation_summary='Обновление данных комплексного обеда.',
-    operation_description='''
-Метод позволяет:
-1) добавлять блюда в комплексный обед, путем добавления "id" главного блюда, также можно передать его гарнир, \
-путем добавления "id" гарнира в список added_dish.
-2) изменять информацию самого обеда.
-''',
-    request_body=request_for_complex_dinner,
-    responses={
-        '200': openapi.Response('Успешно', ComplexDinnerSerializer),
-        '400': 'Неверный формат запроса'
-    }
-)
-                  )
-@method_decorator(name='create', decorator=swagger_auto_schema(
-    operation_summary='Создание комплексного обеда.',
-    operation_description='''
-Метод позволяет:
-1) создать просто название комплексного обеда, без блюд.
-2) прикреплять блюда сразу при создании комплексного обеда путем добавления "id" главного блюда, также можно сразу \
-передать его гарнир, путем добавления "id" гарнира в список added_dish.
-''',
-    request_body=request_for_complex_dinner,
-    responses={
-        '201': openapi.Response('Создано', ComplexDinnerSerializer),
-        '400': 'Неверный формат запроса'
-    }
-)
-                  )
-class ComplexDinnerViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticated]
-    queryset = ComplexDinner.objects.all()
-    serializer_class = ComplexDinnerSerializer
-    pagination_class = pagination.LimitOffsetPagination
-
-    def get_object(self):
-        return get_object_or_404(ComplexDinner, id=self.kwargs.get("complex_id"))
-
-    def get_serializer_context(self):
-        return {'for_complex': True}
 
 
 @method_decorator(name='list', decorator=swagger_auto_schema(

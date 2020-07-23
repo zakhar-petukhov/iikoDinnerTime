@@ -1,4 +1,4 @@
-from api.dinner.models import Dish, AddedDish, ComplexDinner
+from apps.api.dinner.models import Dish
 
 
 def get_additional_dish_for_complex(initial_data, сomplex_dinner):

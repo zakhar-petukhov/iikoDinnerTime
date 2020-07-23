@@ -1,6 +1,6 @@
 from django.urls import path
 
-from api.common.views import SettingsViewSet
+from apps.api.common.views import SettingsViewSet
 
 app_name = "COMMON"
 

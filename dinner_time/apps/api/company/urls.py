@@ -1,7 +1,7 @@
 from django.urls import path
 
-from api.authentication.views import UserChangeRegAuthDataView
-from api.company.views import *
+from apps.api.authentication.views import UserChangeRegAuthDataView
+from apps.api.company.views import *
 
 app_name = "COMPANY"
 
