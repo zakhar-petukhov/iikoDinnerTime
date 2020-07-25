@@ -2,11 +2,11 @@ import pytest
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
-from api.common import Settings
-from api.company import Company, Department
-from api.dinner import CategoryDish, Dish, ComplexDinner, DayMenu, Dinner, CompanyOrder, Template, WeekMenu
-from api.users.models import User, Tariff
-from api.users.utils import create_ref_link_for_update_auth_data
+from apps.api.common.models import Settings
+from apps.api.company.models import Company, Department
+from apps.api.dinner.models import CategoryDish, Dish, DayMenu, Dinner, CompanyOrder, Template, WeekMenu
+from apps.api.users.models import User, Tariff
+from apps.api.users.utils import create_ref_link_for_update_auth_data
 
 
 @pytest.fixture
@@ -82,7 +82,7 @@ def create_dish(django_user_model, get_token_company, create_category_dish):
             "name": "Томатный суп",
             "cost": 90,
             "weight": 120,
-            "composition": "Томат, горох",
+            "description": "Томат, горох",
             "category_dish": create_category_dish()
         }
 
@@ -95,12 +95,13 @@ def create_dish(django_user_model, get_token_company, create_category_dish):
 def create_complex_dish(django_user_model, get_token_company, create_dish):
     def make_complex_dish():
         data = {
-            "name": "Комплексный обед №2",
+            "name": "Комплексный обед №1",
+            "cost": 160
         }
 
         Settings.objects.create()  # create the settings to take effect
-        complex_dinner = ComplexDinner.objects.create(**data)
-        complex_dinner.dishes.add(create_dish())
+        complex_dinner = Dish.objects.create(**data)
+        complex_dinner.added_dish.add(create_dish())
 
         return complex_dinner
 
@@ -122,10 +123,9 @@ def create_tariff(django_user_model, get_token_user):
 
 
 @pytest.fixture
-def create_menu(django_user_model, get_token_company, create_dish, create_complex_dish):
+def create_menu(django_user_model, get_token_company, create_dish):
     def make_menu():
         day_menu = DayMenu.objects.create()
-        day_menu.complex_dinner.add(create_complex_dish())
         day_menu.dish.add(create_dish())
 
         return day_menu
