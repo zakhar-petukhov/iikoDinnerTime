@@ -77,14 +77,18 @@ class Dish(Model):
     upid = CharField(max_length=43, unique=True, null=True, blank=True, verbose_name='UPID блюда из iiko')
     code = CharField(max_length=43, unique=True, null=True, blank=True, verbose_name='Код блюда из iiko')
 
-    name = CharField(max_length=40, blank=True, null=True, verbose_name='Название блюда')
+    name = CharField(max_length=100, blank=True, null=True, verbose_name='Название блюда')
+    added_dish = ManyToManyField('self', related_name='additional_dish', blank=True,
+                                 verbose_name='Дополнительное блюдо', symmetrical=False)
+    category_dish = ForeignKey(CategoryDish, on_delete=PROTECT, related_name='dishes', verbose_name='Категория блюд',
+                               blank=True, null=True)
+
     cost = FloatField(blank=True, null=True, verbose_name='Цена')
     weight = FloatField(blank=True, null=True, verbose_name='Вес')
     description = CharField(max_length=120, blank=True, null=True, verbose_name='Описание')
-    category_dish = ForeignKey(CategoryDish, on_delete=PROTECT, related_name='dishes', verbose_name='Категория блюд',
-                               blank=True, null=True)
+
     is_active = BooleanField(default=True, verbose_name='Статус активности')
-    is_complex = BooleanField(default=False, verbose_name='Комплексный обед')
+    for_complex = BooleanField(default=False, verbose_name='Для комплексного обеда')
 
     def __str__(self):
         return self.name

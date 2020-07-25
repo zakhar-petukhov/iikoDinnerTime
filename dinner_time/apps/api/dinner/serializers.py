@@ -7,16 +7,26 @@ from apps.api.dinner.utils import get_day_menu
 from apps.api.users.serializers import UserSerializer
 
 
+class RecursiveField(serializers.Serializer):
+    def to_representation(self, value):
+        serializer = self.parent.parent.__class__(value, context=self.context)
+        return serializer.data
+
+
 class DishSerializer(serializers.ModelSerializer):
     """
-    Serializer for dish with create and update method
+    Serializer for dish
     """
 
     id = serializers.IntegerField(read_only=False, required=False)
+    added_dish = RecursiveField(many=True, read_only=True)
+    upid = serializers.ReadOnlyField()
+    code = serializers.ReadOnlyField()
 
     class Meta:
         model = Dish
-        fields = ('id', 'name', 'cost', 'weight', 'description', 'category_dish', 'is_active')
+        fields = ('id', 'name', 'upid', 'code', 'cost', 'added_dish', 'weight', 'description',
+                  'category_dish', 'is_active', 'for_complex')
 
 
 class DishCategorySerializer(serializers.ModelSerializer):
@@ -35,6 +45,7 @@ class MenuSerializer(serializers.ModelSerializer):
     """
     Serializer for menu (create, update)
     """
+
     id = serializers.IntegerField(read_only=False, required=False)
     dish = DishSerializer(many=True, required=False)
     close_order_time = SettingsSerializer(required=False)
@@ -47,16 +58,15 @@ class MenuSerializer(serializers.ModelSerializer):
         dish_validated_data = validated_data.pop('dish', [])
 
         menu = DayMenu.objects.create(**validated_data)
-        # get_day_menu(menu, dish_validated_data, complex_dinner_validated_data)
+        get_day_menu(menu, dish_validated_data)
 
         return menu
 
     def update(self, instance, validated_data):
         dish_validated_data = validated_data.pop('dish')
-        complex_dinner_validated_data = validated_data.pop('complex_dinner')
 
         instance = super().update(instance, validated_data)
-        get_day_menu(instance, dish_validated_data, complex_dinner_validated_data)
+        get_day_menu(instance, dish_validated_data)
 
         return instance
 
@@ -64,11 +74,9 @@ class MenuSerializer(serializers.ModelSerializer):
         internal_value = super(MenuSerializer, self).to_internal_value(data)
 
         dishes = data.get("dish", [])
-        complex_dinner = data.get("complex_dinner", [])
 
         internal_value.update({
-            "dish": dishes,
-            "complex_dinner": complex_dinner
+            "dish": dishes
         })
 
         return internal_value

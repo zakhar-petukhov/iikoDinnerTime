@@ -46,7 +46,6 @@ class Image(Model):
     info = CharField(max_length=20, verbose_name='Описание', blank=True, null=True)
     type = CharField(max_length=6, choices=[
         ('dish', 'Блюдо'),
-        ('complex_dinner', 'Комплексный обед'),
         ('avatar', 'Аватар')], verbose_name='Тип фотографии')
 
     def get_file_path(self, filename):
