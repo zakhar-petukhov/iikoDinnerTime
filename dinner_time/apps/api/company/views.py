@@ -11,10 +11,11 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
+from apps.api.company.data_for_swagger import *
 from apps.api.company.serializers import *
 from apps.api.company.utils import create_user_or_company
 from apps.api.dinner.models import Dinner, CompanyOrder
-from apps.api.dinner.serializers import DinnerSerializer, DinnerHistoryOrderSerializer
+from apps.api.dinner.serializers import DinnerSerializer, DinnerOrderSerializer
 from apps.api.users.models import User
 from apps.api.users.permissions import IsCompanyAuthenticated
 from apps.api.users.serializers import UserCreateSerializer
@@ -183,6 +184,22 @@ class DepartmentCreateUserViewSet(ModelViewSet):
                                       parent=parent)
 
 
+@method_decorator(name='update', decorator=swagger_auto_schema(
+    operation_summary='Обновление заказа сотрудника.',
+    operation_description='''
+Имеем 4 статуса заказа:
+1) В обработке (дефолт)
+2) Принят
+3) Отменен
+4) Подтвержден ---> можем отправлять админу в privet-obed, а после на кухню
+''',
+    request_body=request_for_update_employee_order,
+    responses={
+        '200': openapi.Response('Успешно', DinnerSerializer),
+        '400': 'Неверный формат запроса'
+    }
+)
+                  )
 @method_decorator(name='list', decorator=swagger_auto_schema(
     operation_summary='Просмотр всех заказов от сотрудников.',
     responses={
@@ -196,27 +213,38 @@ class DinnerCheckOrderViewSet(ModelViewSet):
     serializer_class = DinnerSerializer
 
     def get_queryset(self):
-        company_id = self.request.user.id
+        company_id = self.request.user.company_data.id
         return Dinner.objects.filter(company_id=company_id)
 
 
-@method_decorator(name='get', decorator=swagger_auto_schema(
-    operation_summary='Просмотр историй заказов.',
-    operation_description='''Есть возможность просмотра всех заказов компании, а также посмотреть детально \
-только один заказ, путем передачи order_id.''',
+@method_decorator(name='create', decorator=swagger_auto_schema(
+    operation_summary='Создание заказа от компании',
+    operation_description='''Создается заказ, который отправляется к администратору privet-obed.
+Принимаются заказы только со статусом "Подтвержден"''',
+    request_body=request_for_create_order,
     responses={
-        '200': openapi.Response('Успешно', DinnerHistoryOrderSerializer),
+        '201': openapi.Response('Создано', DinnerOrderSerializer),
         '400': 'Неверный формат запроса'
     }
 )
                   )
-class CompanyHistoryOrder(ListAPIView):
-    serializer_class = DinnerHistoryOrderSerializer
+@method_decorator(name='list', decorator=swagger_auto_schema(
+    operation_summary='Просмотр историй заказов.',
+    operation_description='''Есть возможность просмотра всех заказов компании, а также посмотреть детально \
+только один заказ, путем передачи order_id.''',
+    responses={
+        '200': openapi.Response('Успешно', DinnerOrderSerializer),
+        '400': 'Неверный формат запроса'
+    }
+)
+                  )
+class CompanyOrderView(ModelViewSet):
+    serializer_class = DinnerOrderSerializer
     permission_classes = [IsCompanyAuthenticated]
     pagination_class = pagination.LimitOffsetPagination
 
     def get_queryset(self):
-        company_id = self.request.user.id
+        company_id = self.request.user.company_data.id
         order_id = self.kwargs.get('order_id', None)
         if order_id:
             return CompanyOrder.objects.filter(id=order_id, company__id=company_id)

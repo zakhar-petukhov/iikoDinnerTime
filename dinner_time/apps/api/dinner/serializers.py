@@ -1,6 +1,9 @@
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from apps.api.common.serializers import SettingsSerializer
+from apps.api.company.models import Company
 from apps.api.company.serializers import CompanyDetailSerializer
 from apps.api.dinner.models import *
 from apps.api.dinner.utils import get_day_menu
@@ -87,13 +90,13 @@ class DinnerSerializer(serializers.ModelSerializer):
     Serializer for dinner
     """
 
-    dishes = DishSerializer(many=True)
+    dishes = DishSerializer(many=True, required=False)
     user = UserSerializer(required=False)
     company = CompanyDetailSerializer(required=False)
 
     class Meta:
         model = Dinner
-        fields = ['id', 'dishes', 'user', 'company', 'date_action_begin', 'status']
+        fields = ['id', 'dishes', 'user', 'company', 'date_action_begin', 'status', 'full_cost', 'status_name']
 
     def create(self, validated_data):
         request = self.context.get('request')
@@ -115,7 +118,7 @@ class DinnerSerializer(serializers.ModelSerializer):
         return dinner
 
 
-class DinnerHistoryOrderSerializer(serializers.ModelSerializer):
+class DinnerOrderSerializer(serializers.ModelSerializer):
     """
     Serializer for get order dinner
     """
@@ -125,6 +128,33 @@ class DinnerHistoryOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = CompanyOrder
         fields = ['id', 'company', 'dinners', 'create_date']
+
+    def validate_dinners(self, value):
+        request = self.context.get('request')
+        dinners = request.data
+
+        for dinner in dinners['dinners']:
+            try:
+                dinner = Dinner.objects.get(pk=dinner['id'])
+            except ObjectDoesNotExist:
+                raise ValidationError("Такого id заказа не существует")
+
+            if dinner.status_name != "Подтвержден":
+                raise ValidationError('Статус заказа должен быть "Подтвержден"')
+
+            return dinner
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        company = User.objects.get(id=request.user.id, company_data__isnull=False)
+        dinners_data = request.data
+
+        company_order = CompanyOrder.objects.create(company=company)
+
+        for dinner in dinners_data['dinners']:
+            company_order.dinners.add(dinner["id"])
+
+        return company_order
 
 
 class WeekMenuSerializer(serializers.ModelSerializer):

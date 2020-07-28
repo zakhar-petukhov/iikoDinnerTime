@@ -14,8 +14,9 @@ class CompanyDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Company
         fields = (
-            'id', 'company_name', 'full_address', 'legal_address', 'inn', 'kpp', 'ogrn', 'registration_date',
-            'bank_name', 'bik', 'corporate_account', 'settlement_account', 'general_director')
+            'id', 'company_name', 'city', 'street', 'house', 'house_building', 'apartment', 'legal_address', 'inn',
+            'kpp', 'ogrn', 'registration_date', 'bank_name', 'bik', 'corporate_account', 'settlement_account',
+            'general_director')
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
