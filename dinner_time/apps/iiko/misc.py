@@ -1,6 +1,6 @@
 from apps.api.dinner.models import CompanyOrder
-from iiko import data_getters
-from iiko.api import IikoService
+from apps.iiko import data_getters
+from apps.iiko.api import IikoService
 
 
 def create_order(request, company_order_id):

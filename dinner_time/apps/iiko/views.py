@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAdminUser
 from rest_framework.views import APIView
 
-from iiko.misc import create_order
+from apps.iiko.misc import create_order
 
 
 @method_decorator(name='post', decorator=swagger_auto_schema(

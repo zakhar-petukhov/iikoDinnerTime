@@ -3,7 +3,7 @@ import json
 import requests
 from django.conf import settings
 
-from iiko.authentication import get_token
+from apps.iiko.authentication import get_token
 
 
 class IikoService:
