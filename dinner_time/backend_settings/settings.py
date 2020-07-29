@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'apps.api.users',
     'apps.api.authentication',
     'apps.utils',
+    'apps.iiko',
     'apps.api.company',
     'apps.api.common',
     'phonenumber_field',

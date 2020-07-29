@@ -41,6 +41,7 @@ urlpatterns = [
     path('auth/', include('apps.api.authentication.urls')),
     path('company/', include('apps.api.company.urls')),
     path('settings/', include('apps.api.common.urls')),
+    path('iiko/', include('apps.iiko.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

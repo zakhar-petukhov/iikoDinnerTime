@@ -41,3 +41,8 @@ class IikoService:
         url = f'nomenclature/{settings.IIKO_ORGANIZATION_ID}?organizationId={settings.IIKO_ORGANIZATION_ID}&access_token={self.auth_key}'
         response = self.make_request(type='GET', url=url)
         return response
+
+    def create_company_order(self, data):
+        url = f'orders/add?access_token={self.auth_key}&requestTimeout=10000'
+        response = self.make_request(type='POST', url=url, payload=data)
+        return response
