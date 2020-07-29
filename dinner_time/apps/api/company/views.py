@@ -6,6 +6,7 @@ from django.utils.decorators import method_decorator
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters, pagination
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView, get_object_or_404
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
@@ -213,8 +214,11 @@ class DinnerCheckOrderViewSet(ModelViewSet):
     serializer_class = DinnerSerializer
 
     def get_queryset(self):
-        company_id = self.request.user.company_data.id
-        return Dinner.objects.filter(company_id=company_id)
+        try:
+            company_id = self.request.user.company_data.id
+            return Dinner.objects.filter(company_id=company_id)
+        except AttributeError:
+            return ValidationError("Запрос доступен только авторизованным компаниям.", code=400)
 
 
 @method_decorator(name='create', decorator=swagger_auto_schema(
@@ -244,7 +248,7 @@ class CompanyOrderView(ModelViewSet):
     pagination_class = pagination.LimitOffsetPagination
 
     def get_queryset(self):
-        company_id = self.request.user.company_data.id
+        company_id = self.request.user.id
         order_id = self.kwargs.get('order_id', None)
         if order_id:
             return CompanyOrder.objects.filter(id=order_id, company__id=company_id)

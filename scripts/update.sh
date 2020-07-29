@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 echo Updating git repo...
-git pull git@github.com:zakhar-petukhov/DinnerTime.git
+git pull git@github.com:zakhar-petukhov/iikoDinnerTime.git
 
 echo Updating images...
 if [[ $1 ]]
