@@ -4,7 +4,13 @@ from django.db.models import *
 
 class Company(Model):
     company_name = CharField(max_length=20, null=True, blank=True, verbose_name='Название компании')
-    full_address = CharField(max_length=500, null=True, blank=True, verbose_name='Полный адрес')
+
+    city = CharField(max_length=100, null=True, blank=True, verbose_name='Город')
+    street = CharField(max_length=100, null=True, blank=True, verbose_name='Улица')
+    house = CharField(max_length=30, null=True, blank=True, verbose_name='Номер дома')
+    house_building = CharField(max_length=30, null=True, blank=True, verbose_name='Корпус дома')
+    apartment = CharField(max_length=30, null=True, blank=True, verbose_name='Номер квартиры')
+
     legal_address = CharField(max_length=500, null=True, blank=True, verbose_name='Юридический адрес')
 
     general_director = CharField(max_length=45, null=True, blank=True, verbose_name='Генеральный директор')
@@ -22,6 +28,10 @@ class Company(Model):
 
     def __str__(self):
         return self.company_name
+
+    def get_full_address(self):
+        full_address = f"{self.city}, {self.street}, {self.house}, {self.apartment}"
+        return full_address.strip()
 
     class Meta:
         verbose_name = 'Компания'

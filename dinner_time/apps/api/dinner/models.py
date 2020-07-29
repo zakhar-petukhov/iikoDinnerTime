@@ -35,7 +35,7 @@ class Dinner(Model):
     company = ForeignKey('company.Company', on_delete=PROTECT, related_name='dinner_company', verbose_name='Компания',
                          blank=True, null=True)
 
-    date_action_begin = DateField(null=True, blank=True, verbose_name='Заказ на дату')
+    date_action_begin = DateTimeField(null=True, blank=True, verbose_name='Заказ на дату')
     status = SmallIntegerField(choices=STATUSES, blank=True, default=IN_PROCESSING, verbose_name='Статус')
 
     create_date = DateTimeField(auto_now_add=True, auto_now=False, null=True, blank=True, verbose_name='Создано')
