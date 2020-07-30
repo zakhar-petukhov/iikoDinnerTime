@@ -6,10 +6,10 @@ from django.utils.decorators import method_decorator
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters, pagination
+from rest_framework import response
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView, get_object_or_404
 from rest_framework.permissions import IsAdminUser
-from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from apps.api.company.data_for_swagger import *
@@ -121,7 +121,7 @@ class CompanyChangeDetailView(UpdateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
-        return Response(serializer.data)
+        return response.Response(serializer.data)
 
 
 @method_decorator(name='create', decorator=swagger_auto_schema(
