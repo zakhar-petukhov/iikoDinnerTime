@@ -28,7 +28,11 @@ def create_company(db, django_user_model):
         data = {
             "company_data": {
                 "company_name": "ООО Тест",
-                "full_address": "ул. Пушкина, дом Колотушкина",
+                "city": "Санкт-Петербург",
+                "street": "Пушкина",
+                "house": "3",
+                "house_building": "1",
+                "apartment": "120",
                 "registration_date": "2020-04-25"
             },
             "first_name": "Тест",
@@ -151,11 +155,11 @@ def get_token_company(db, create_company):
 
 @pytest.fixture
 def create_company_order(db, get_token_company, get_token_user, create_dish):
-    def make_order():
+    def make_order(status=1):
         token, company = get_token_company
         token, user = get_token_user
         dish = create_dish()
-        dinner = Dinner.objects.create(user=user, company=company.company_data)
+        dinner = Dinner.objects.create(user=user, company=company.company_data, status=status)
         dinner.dishes.add(dish)
 
         company_order = CompanyOrder.objects.create(company=company)

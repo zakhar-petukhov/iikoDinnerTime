@@ -14,7 +14,9 @@ class TestCompanyView:
         data = {
             "company_data": {
                 "company_name": "ООО Тест",
-                "full_address": "ул. Пушкина, дом Колотушкина",
+                "city": "Санкт-Петербург",
+                "street": "Невский проспект",
+                "house": "5",
                 "registration_date": "2020-04-25"
             },
             "first_name": "Тест",
@@ -153,3 +155,49 @@ class TestDepartmentView:
 
         assert response.status_code == 200
         assert order_data[0]['dinners'][0]['dishes'][0]['name'] == 'Томатный суп'
+
+    def test_create_order(self, api_client, get_token_company, create_company_order):
+        token, company = get_token_company
+        url = reverse('COMPANY:send_employee_order_to_admin')
+        api_client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+
+        success_data = {
+            "dinners": [
+                {
+                    "id": create_company_order(status=3).id
+                }
+            ]
+        }
+
+        data_with_status_error = {
+            "dinners": [
+                {
+                    "id": create_company_order().id
+                }
+            ]
+        }
+
+        data_with_id_error = {
+            "dinners": [
+                {
+                    "id": 24
+                }
+            ]
+        }
+
+        api_client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+
+        response = api_client.post(url, data=json.dumps(success_data), content_type='application/json')
+        assert response.status_code == 201
+
+        response = api_client.post(url, data=json.dumps(data_with_status_error), content_type='application/json')
+        req_data = json.loads(response.content)
+
+        assert response.status_code == 400
+        assert req_data['dinners'][0] == 'Статус заказа должен быть "Подтвержден"'
+
+        response = api_client.post(url, data=json.dumps(data_with_id_error), content_type='application/json')
+        req_data = json.loads(response.content)
+
+        assert response.status_code == 400
+        assert req_data['dinners'][0] == "Такого id заказа не существует"
