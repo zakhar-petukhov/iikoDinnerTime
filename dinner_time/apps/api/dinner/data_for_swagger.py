@@ -5,7 +5,7 @@ request_for_dish = Schema(type=TYPE_OBJECT,
                               'name': Schema(type=TYPE_STRING, title='Название блюда'),
                               'cost': Schema(type=TYPE_INTEGER, title='Цена'),
                               'weight': Schema(type=TYPE_INTEGER, title='Вес'),
-                              'composition': Schema(type=TYPE_STRING, title='Состав'),
+                              'description': Schema(type=TYPE_STRING, title='Состав'),
                               'category_dish': Schema(type=TYPE_INTEGER, title='Категория блюд'),
                               'is_active': Schema(type=TYPE_BOOLEAN, title='Активно')
                           })

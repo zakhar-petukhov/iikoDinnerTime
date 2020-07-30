@@ -1,9 +1,7 @@
-from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from apps.api.common.serializers import SettingsSerializer
-from apps.api.company.models import Company
+from apps.api.common.serializers import SettingsSerializer, ImagesSerializer
 from apps.api.company.serializers import CompanyDetailSerializer
 from apps.api.dinner.models import *
 from apps.api.dinner.utils import get_day_menu
@@ -23,13 +21,12 @@ class DishSerializer(serializers.ModelSerializer):
 
     id = serializers.IntegerField(read_only=False, required=False)
     added_dish = RecursiveField(many=True, read_only=True)
-    upid = serializers.ReadOnlyField()
-    code = serializers.ReadOnlyField()
+    image_dish = ImagesSerializer(many=True, read_only=True)
 
     class Meta:
         model = Dish
-        fields = ('id', 'name', 'upid', 'code', 'cost', 'added_dish', 'weight', 'description',
-                  'category_dish', 'is_active', 'for_complex')
+        fields = ('id', 'name', 'cost', 'added_dish', 'weight', 'description',
+                  'category_dish', 'is_active', 'for_complex', 'image_dish')
 
 
 class DishCategorySerializer(serializers.ModelSerializer):
