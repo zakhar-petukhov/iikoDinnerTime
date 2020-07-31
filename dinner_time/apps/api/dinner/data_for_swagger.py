@@ -35,6 +35,8 @@ request_for_create_dinner = Schema(type=TYPE_OBJECT,
 
 request_for_week_menu = Schema(type=TYPE_OBJECT,
                                properties={
+                                   'name': Schema(type=TYPE_STRING, title='Название шаблона'),
+                                   'number_week': Schema(type=TYPE_INTEGER, title='Номер недели'),
                                    'dishes': Schema(type=TYPE_ARRAY, title='Блюда',
                                                     items=Items(enum={'id': TYPE_INTEGER},
                                                                 type=TYPE_STRING)),

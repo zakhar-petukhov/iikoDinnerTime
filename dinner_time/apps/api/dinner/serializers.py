@@ -164,7 +164,7 @@ class WeekMenuSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = WeekMenu
-        fields = ['id', 'dishes']
+        fields = ['id', 'name', 'number_week', 'dishes']
 
     def create(self, validated_data):
         dishes = validated_data['dishes']
@@ -204,6 +204,9 @@ class TemplateSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'number_week', 'menu']
 
     def create(self, validated_data):
-        pk = validated_data.pop('menu')['id']
-        week_menu = WeekMenu.objects.get(id=pk)
-        return Template.objects.create(menu=week_menu, **validated_data)
+        if validated_data.get('menu'):
+            pk = validated_data.pop('menu')['id']
+            week_menu = WeekMenu.objects.get(id=pk)
+            return Template.objects.create(menu=week_menu, **validated_data)
+
+        return Template.objects.create(**validated_data)
