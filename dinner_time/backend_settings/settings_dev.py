@@ -10,6 +10,11 @@ DATABASES = {
         'PASSWORD': os.environ['DB_PASSWORD'],
         'HOST': os.environ['DB_HOST'],
         'PORT': '5432' if not os.environ.get('DB_PORT') else os.environ['DB_PORT'],
+
+        'TEST': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:'
+        }
     }
 }
 
