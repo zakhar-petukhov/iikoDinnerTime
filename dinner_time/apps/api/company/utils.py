@@ -23,7 +23,7 @@ def create_user_or_company(company_name, serializer, parent=None, is_company=Fal
 
 
 def send_message(company_name, upid, data, is_company):
-    url = settings.URL_FOR_CHANGE_AUTH_DATA.format(upid)
+    url = settings.URL_FOR_CHANGE_AUTH_DATA + upid
 
     if is_company:
         header, body = send_message_for_change_auth_data_company(url=url,
