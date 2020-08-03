@@ -31,6 +31,12 @@ SchemaView = get_schema_view(
     permission_classes=(permissions.AllowAny,),
 )
 
+
+# Test sentry
+def trigger_error(request):
+    division_by_zero = 1 / 0
+
+
 urlpatterns = [
     path('jet/', include('jet.urls', 'jet')),  # Django JET URLS
     path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),
@@ -42,6 +48,7 @@ urlpatterns = [
     path('company/', include('apps.api.company.urls')),
     path('settings/', include('apps.api.common.urls')),
     path('iiko/', include('apps.iiko.urls')),
+    path('sentry-debug/', trigger_error),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

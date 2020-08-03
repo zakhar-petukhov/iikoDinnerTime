@@ -29,3 +29,4 @@ termcolor==1.1.0
 paramiko==2.7.1
 schedule==0.6.0
 pytest-env==0.6.2
+sentry-sdk==0.16.2
