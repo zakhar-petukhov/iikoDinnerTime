@@ -1,3 +1,5 @@
+from sentry_sdk import capture_exception
+
 from apps.api.dinner.models import CompanyOrder
 from apps.iiko import data_getters
 from apps.iiko.api import IikoService
@@ -19,7 +21,9 @@ def create_order(request, company_order_id):
             'error_text': None
         }
 
-    except Exception:  # TODO: сделать логи
+    except Exception as exception:
+        capture_exception(exception)
+
         return {
             'error': True,
             'content': {

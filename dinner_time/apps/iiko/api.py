@@ -26,7 +26,7 @@ class IikoService:
         except requests.RequestException:
             raise Exception('Произошла ошибка соединения с сервисом iiko')
 
-        if response.status_code >= 500:
+        if response.status_code < 200 or response.status_code >= 300:
             raise Exception('Произошла ошибка в сервисе iiko')
 
         response_json = json.loads(response.text)
