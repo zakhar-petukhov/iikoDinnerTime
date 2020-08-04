@@ -17,6 +17,7 @@ urlpatterns = [
 
     path('list_menu/', MenuViewSet.as_view({'get': 'list'}), name='list_all_menu'),
     path('list_all_dish/', DishViewSet.as_view({'get': 'list'}), name='list_all_dish'),
+    path('dish/<dish_id>/', DishViewSet.as_view({'get': 'list'}), name='list_dish_id'),
     path('list_all_category/', DishCategoryViewSet.as_view({'get': 'list'}), name='list_all_category'),
     path('list_category/<category_id>/', DishCategoryViewSet.as_view({'get': 'list'}), name='list_category'),
 

@@ -167,7 +167,10 @@ class WeekMenuSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'number_week', 'dishes']
 
     def create(self, validated_data):
-        dishes = validated_data['dishes']
+        dishes = validated_data.get('dishes')
+
+        if not dishes:
+            return super().create(validated_data)
 
         week_menu = WeekMenu.objects.create()
 
