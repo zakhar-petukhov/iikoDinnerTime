@@ -47,7 +47,7 @@ def check_key_file_exists():
 def dump_database():
     print("\U0001F4E6 Preparing database backup started")
     dump_db_operation_status = os.WEXITSTATUS(os.system(
-        f"pg_dump -h {DB_HOSTNAME} -U {DB_USER} {DB_NAME} -P {DB_PASSWORD} | gzip -c --best | \
+        f"PGPASSWORD={DB_PASSWORD} pg_dump -h {DB_HOSTNAME} -U {DB_USER} {DB_NAME} | gzip -c --best | \
         openssl smime -encrypt -aes256 -binary -outform DEM \
         -out {DB_FILENAME} {BACKUP_KEY_PUB_FILE}"
     ))
