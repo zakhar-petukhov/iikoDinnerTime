@@ -22,6 +22,7 @@ class DishSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=False, required=False)
     added_dish = RecursiveField(many=True, read_only=True)
     image_dish = ImagesSerializer(many=True, read_only=True)
+    category_dish = serializers.CharField(source='category_dish.name', required=False)
 
     class Meta:
         model = Dish
