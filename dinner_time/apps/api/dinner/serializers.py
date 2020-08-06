@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework.generics import get_object_or_404
 
 from apps.api.common.serializers import SettingsSerializer, ImagesSerializer
 from apps.api.company.serializers import CompanyDetailSerializer
@@ -15,6 +16,8 @@ class RecursiveField(serializers.Serializer):
 
 
 class DishNameCategorySerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=False, required=False)
+
     class Meta:
         model = CategoryDish
         fields = ['id', 'name']
@@ -28,12 +31,20 @@ class DishSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=False, required=False)
     added_dish = RecursiveField(many=True, read_only=True)
     image_dish = ImagesSerializer(many=True, read_only=True)
-    category_dish = DishNameCategorySerializer()
+    category_dish = DishNameCategorySerializer(required=False)
 
     class Meta:
         model = Dish
         fields = ('id', 'name', 'cost', 'added_dish', 'weight', 'description',
                   'category_dish', 'is_active', 'for_complex', 'image_dish')
+
+    def update(self, instance, validated_data):
+        category_dish_validated_data = self.validated_data.get('category_dish')
+        if not category_dish_validated_data:
+            return super().update(instance, validated_data)
+
+        validated_data['category_dish'] = get_object_or_404(CategoryDish, id=category_dish_validated_data.get("id"))
+        return super().update(instance, validated_data)
 
 
 class DishCategorySerializer(serializers.ModelSerializer):

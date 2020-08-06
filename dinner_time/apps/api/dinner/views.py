@@ -30,7 +30,6 @@ from .data_for_swagger import *
 1) добавлять блюда в категорию, путем передачи "id" категории в "category_dish".
 2) изменять основную информацию о блюде.
 ''',
-    request_body=request_for_dish,
     responses={
         '200': openapi.Response('Успешно', DishSerializer),
         '400': 'Неверный формат запроса'
