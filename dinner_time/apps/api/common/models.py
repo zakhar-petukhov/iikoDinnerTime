@@ -60,7 +60,7 @@ class Image(Model):
             return os.path.join(f"{self.type}/{self.user.id}/images/", filename_site)
 
     image = ThumbnailerImageField(storage=OverwriteStorage(), upload_to=get_file_path, blank=True, null=True,
-                                  resize_source=dict(size=(450, 500)), verbose_name='Фотография')
+                                  resize_source=dict(size=(500, 350)), verbose_name='Фотография')
 
     def img(self):
         if self.image:
