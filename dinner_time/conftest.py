@@ -80,6 +80,30 @@ def create_category_dish(django_user_model, get_token_company):
 
 
 @pytest.fixture
+def create_second_category_dish(django_user_model, get_token_company):
+    def make_category_dish():
+        data = {
+            "name": "Вторые блюда"
+        }
+
+        return CategoryDish.objects.create(**data)
+
+    return make_category_dish
+
+
+@pytest.fixture
+def create_category_dish(django_user_model, get_token_company):
+    def make_category_dish():
+        data = {
+            "name": "Первые блюда"
+        }
+
+        return CategoryDish.objects.create(**data)
+
+    return make_category_dish
+
+
+@pytest.fixture
 def create_dish(django_user_model, get_token_company, create_category_dish):
     def make_dish():
         data = {

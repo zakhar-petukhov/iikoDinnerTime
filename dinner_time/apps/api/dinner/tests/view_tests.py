@@ -75,19 +75,22 @@ class TestDinnerView:
         assert response.status_code == 200
         user_data[0]['name'] = 'Комплексный обед №1'
 
-    def test_change_dish(self, api_client, get_token_company, create_dish):
+    def test_change_dish(self, api_client, get_token_company, create_dish, create_second_category_dish):
         token_company, company = get_token_company
         url = reverse('DINNER:change_dish', kwargs={"dish_id": create_dish().id})
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token_company.key)
 
         data = {
-            "name": "Пельмеши"
+            "name": "Пельмеши",
+            "category_dish": {
+                "id": create_second_category_dish().id
+            },
         }
 
         response = api_client.put(url, data=json.dumps(data), content_type='application/json')
         user_data = json.loads(response.content)
         assert response.status_code == 200
-        user_data['name'] = "Пельмеши"
+        user_data['category_dish']['name'] = "Вторые блюда"
 
     def test_change_category_dish(self, api_client, get_token_company, create_category_dish):
         token_company, company = get_token_company
