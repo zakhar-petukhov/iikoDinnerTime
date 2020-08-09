@@ -2,11 +2,20 @@ from datetime import datetime
 
 import pytz
 from django.conf import settings
-from django.contrib.auth.models import AbstractUser, UserManager
+from django.contrib.auth.models import AbstractUser, UserManager, Group
 from django.db.models import *
 from mptt.fields import TreeForeignKey
 from mptt.models import MPTTModel
 from phonenumber_field.modelfields import PhoneNumberField
+
+
+class CustomGroup(Group):
+    tariff = ForeignKey('users.Tariff', on_delete=PROTECT, related_name='tariff_group', blank=True,
+                        null=True, verbose_name='Тариф')
+
+    class Meta:
+        verbose_name = 'Группы пользователей'
+        verbose_name_plural = 'Группы пользователей'
 
 
 class User(AbstractUser, MPTTModel):
@@ -23,8 +32,8 @@ class User(AbstractUser, MPTTModel):
     email = EmailField(max_length=30, null=True, blank=True, verbose_name='Email')
     email_verified = BooleanField(default=False, verbose_name='Email подтвержден')
 
-    tariff = ForeignKey('users.Tariff', on_delete=PROTECT, related_name='tariff_user', blank=True,
-                        null=True, verbose_name='Тариф')
+    group = ForeignKey('users.CustomGroup', on_delete=PROTECT, related_name='user_group', blank=True,
+                       null=True, verbose_name='Группа')
 
     department = ForeignKey('company.Department', on_delete=PROTECT, related_name='department_user', blank=True,
                             null=True, verbose_name='Департамент')
@@ -81,4 +90,3 @@ class Tariff(Model):
     class Meta:
         verbose_name = 'Тариф на день'
         verbose_name_plural = 'Тариф на день'
-
