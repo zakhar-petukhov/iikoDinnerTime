@@ -87,20 +87,62 @@ class UserCreateDinnerView(ModelViewSet):
                   )
 @method_decorator(name='create', decorator=swagger_auto_schema(
     operation_summary='Создание тарифа.',
-    request_body=TariffSerializer,
     responses={
         '201': openapi.Response('Создано', TariffSerializer),
         '400': 'Неверный формат запроса'
     }
 )
                   )
-class TariffCreateView(ModelViewSet):
+@method_decorator(name='destroy', decorator=swagger_auto_schema(
+    operation_summary='Удаление тарифа.',
+    responses={
+        '204': openapi.Response('Не найдено', TariffSerializer),
+        '400': 'Неверный формат запроса'
+    }
+)
+                  )
+class TariffView(ModelViewSet):
     queryset = Tariff.objects.all()
     serializer_class = TariffSerializer
     permission_classes = [IsAdminUser]
 
-    def get_object(self):
-        return get_object_or_404(Tariff, id=self.kwargs.get("tariff_id"))
+
+@method_decorator(name='list', decorator=swagger_auto_schema(
+    operation_summary='Просмотр всех групп.',
+    responses={
+        '200': openapi.Response('Успешно', GroupSerializer),
+        '400': 'Неверный формат запроса'
+    }
+)
+                  )
+@method_decorator(name='update', decorator=swagger_auto_schema(
+    operation_summary='Изменение группы.',
+    responses={
+        '200': openapi.Response('Успешно.', GroupSerializer),
+        '400': 'Неверный формат запроса'
+    }
+)
+                  )
+@method_decorator(name='create', decorator=swagger_auto_schema(
+    operation_summary='Создание группы.',
+    responses={
+        '201': openapi.Response('Создано', GroupSerializer),
+        '400': 'Неверный формат запроса'
+    }
+)
+                  )
+@method_decorator(name='destroy', decorator=swagger_auto_schema(
+    operation_summary='Удаление группы.',
+    responses={
+        '204': openapi.Response('Не найдено', GroupSerializer),
+        '400': 'Неверный формат запроса'
+    }
+)
+                  )
+class GroupView(ModelViewSet):
+    queryset = CustomGroup.objects.all()
+    serializer_class = GroupSerializer
+    permission_classes = [IsAuthenticated]
 
 
 @method_decorator(name='post', decorator=swagger_auto_schema(
@@ -118,11 +160,12 @@ class InviteUsersView(APIView):
     def post(self, request):
         form_data = request.data
 
-        tariff = form_data.pop('tariff')
+        group = form_data.pop('group')
         parent = request.user
 
         for employee in form_data['emails']:
-            employee['tariff'] = Tariff.objects.get(pk=tariff)
+            employee['group'] = CustomGroup.objects.get(pk=group)
+
             employee.update(generate_random_password_username())
             user = create_user_account(parent=parent, **employee)
             upid = create_ref_link_for_update_auth_data(obj=user)

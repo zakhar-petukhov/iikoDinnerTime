@@ -9,6 +9,8 @@ app_name = "USERS"
 
 router = routers.DefaultRouter()
 router.register(r'image', ImageViewSet, base_name='user_image')
+router.register(r'group', GroupView, base_name='user_group')
+router.register(r'tariff', TariffView, base_name='group_tariff')
 
 urlpatterns = [
     path('ref/<str:referral_upid>/change_auth/', UserChangeRegAuthDataView.as_view(), name='user_change_auth_ref'),
@@ -17,10 +19,6 @@ urlpatterns = [
     path('user/<pk>/', UserView.as_view({'put': 'update'}), name='change_detail_information'),
 
     path('create/dinner/', UserCreateDinnerView.as_view({'post': 'create'}), name='user_add_dish'),
-
-    path('create/tariff/', TariffCreateView.as_view({'post': 'create'}), name='create_tariff'),
-    path('change/tariff/<tariff_id>/', TariffCreateView.as_view({'put': 'update'}), name='change_tariff'),
-    path('list/all_tariff/', TariffCreateView.as_view({'get': 'list'}), name='list_all_tariff'),
 
     path('invite/users/', InviteUsersView.as_view(), name='invite_user'),
 
