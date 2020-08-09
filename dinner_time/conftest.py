@@ -5,7 +5,7 @@ from rest_framework.test import APIClient
 from apps.api.common.models import Settings
 from apps.api.company.models import Company, Department
 from apps.api.dinner.models import CategoryDish, Dish, DayMenu, Dinner, CompanyOrder, Template, WeekMenu
-from apps.api.users.models import User, Tariff
+from apps.api.users.models import User, Tariff, CustomGroup
 from apps.api.users.utils import create_ref_link_for_update_auth_data
 
 
@@ -148,6 +148,19 @@ def create_tariff(django_user_model, get_token_user):
         return Tariff.objects.create(**data)
 
     return make_tariff
+
+
+@pytest.fixture
+def create_group(django_user_model, get_token_user, create_tariff):
+    def make_group():
+        data = {
+            "name": "Айтишники",
+            "tariff": create_tariff()
+        }
+
+        return CustomGroup.objects.create(**data)
+
+    return make_group
 
 
 @pytest.fixture

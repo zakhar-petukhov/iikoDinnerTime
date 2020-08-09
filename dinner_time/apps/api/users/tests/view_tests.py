@@ -37,7 +37,7 @@ class TestUserView:
 
     def test_create_tariff(self, api_client, get_token_user):
         token_user, user = get_token_user
-        url = reverse('USERS:create_tariff')
+        url = reverse('USERS:group_tariff-list')
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token_user.key)
 
         data = {
@@ -54,7 +54,7 @@ class TestUserView:
 
     def test_change_tariff(self, api_client, get_token_user, create_tariff):
         token_user, user = get_token_user
-        url = reverse('USERS:change_tariff', kwargs={"tariff_id": create_tariff().id})
+        url = reverse('USERS:group_tariff-detail', kwargs={"pk": create_tariff().id})
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token_user.key)
 
         data = {
@@ -67,10 +67,10 @@ class TestUserView:
         assert response.status_code == 200
         assert user_data['max_cost_day'] == 500
 
-    def test_get_all_tariff(self, api_client, get_token_user, create_tariff):
+    def test_get_all_tariff(self, api_client, get_token_user, create_tariff, ):
         create_tariff()
         token_user, user = get_token_user
-        url = reverse('USERS:list_all_tariff')
+        url = reverse('USERS:group_tariff-list')
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token_user.key)
 
         response = api_client.get(url)
@@ -79,13 +79,14 @@ class TestUserView:
         assert response.status_code == 200
         assert user_data[0]['name'] == "Лайт"
 
-    def test_invite_users(self, api_client, get_token_company, create_tariff):
+    def test_invite_users(self, api_client, get_token_company, create_tariff, create_group):
         token_company, company = get_token_company
         url = reverse('USERS:invite_user')
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token_company.key)
 
         data = {
             "tariff": create_tariff().id,
+            "group": create_group().id,
             "emails": [
                 {
                     "email": "zakharpetukhov@protonmail.com"
