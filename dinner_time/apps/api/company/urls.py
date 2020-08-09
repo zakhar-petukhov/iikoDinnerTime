@@ -21,7 +21,9 @@ urlpatterns = [
          name='department_add_user'),
 
     path('check/employee_order/', DinnerCheckOrderViewSet.as_view({'get': 'list'}), name='check_employee_order'),
-    path('employee_order/<pk>', DinnerCheckOrderViewSet.as_view({'put': 'update'}),
+    path('check/order/<user_id>/', DinnerCheckOrderViewSet.as_view({'get': 'list'}),
+         name='check_employee_order_user_id'),
+    path('employee_order/<pk>/', DinnerCheckOrderViewSet.as_view({'put': 'update'}),
          name='update_employee_order'),
 
     path('order/', CompanyOrderView.as_view({'post': 'create'}), name='send_employee_order_to_admin'),

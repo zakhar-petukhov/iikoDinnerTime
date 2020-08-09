@@ -3,16 +3,17 @@ from datetime import datetime
 import pytz
 from django.conf import settings
 from django.utils.decorators import method_decorator
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters, pagination
 from rest_framework import response
-from rest_framework.exceptions import ValidationError
 from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView, get_object_or_404
 from rest_framework.permissions import IsAdminUser
 from rest_framework.viewsets import ModelViewSet
 
 from apps.api.company.data_for_swagger import *
+from apps.api.company.filters import OrderDateFilter
 from apps.api.company.serializers import *
 from apps.api.company.utils import create_user_or_company
 from apps.api.dinner.models import Dinner, CompanyOrder
@@ -202,7 +203,13 @@ class DepartmentCreateUserViewSet(ModelViewSet):
 )
                   )
 @method_decorator(name='list', decorator=swagger_auto_schema(
-    operation_summary='Просмотр всех заказов от сотрудников.',
+    operation_summary='Просмотр заказов от сотрудников.',
+    operation_description='''
+При передаче user_id сотрудника покажется заказы только этого сотрудника.
+Можно использовать фильтры:
+date_action_begin__lte - с какого числа
+date_action_begin__gte - по какое число
+''',
     responses={
         '200': openapi.Response('Успешно', DinnerSerializer),
         '400': 'Неверный формат запроса'
@@ -212,13 +219,18 @@ class DepartmentCreateUserViewSet(ModelViewSet):
 class DinnerCheckOrderViewSet(ModelViewSet):
     permission_classes = [IsCompanyAuthenticated]
     serializer_class = DinnerSerializer
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    filter_class = OrderDateFilter
 
     def get_queryset(self):
-        try:
-            company_id = self.request.user.company_data.id
-            return Dinner.objects.filter(company_id=company_id)
-        except AttributeError:
-            return ValidationError("Запрос доступен только авторизованным компаниям.", code=400)
+        user_id = self.kwargs.get('user_id')
+        company_id = self.request.user
+
+        if user_id:
+            return Dinner.objects.filter(user_id=user_id)
+
+        if not company_id.is_anonymous:
+            return Dinner.objects.filter(company_id=company_id.company_data.id)
 
 
 @method_decorator(name='create', decorator=swagger_auto_schema(
