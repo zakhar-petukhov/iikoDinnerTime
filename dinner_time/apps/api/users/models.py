@@ -12,6 +12,8 @@ from phonenumber_field.modelfields import PhoneNumberField
 class CustomGroup(Group):
     tariff = ForeignKey('users.Tariff', on_delete=PROTECT, related_name='tariff_group', blank=True,
                         null=True, verbose_name='Тариф')
+    company = ForeignKey('company.Company', on_delete=PROTECT, related_name='groups_company', blank=True,
+                         null=True, verbose_name='Компания')
 
     class Meta:
         verbose_name = 'Группы пользователей'

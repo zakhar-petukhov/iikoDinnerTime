@@ -12,6 +12,7 @@ class TariffSerializer(serializers.ModelSerializer):
     """
     Serializer for working with tariff
     """
+    id = serializers.IntegerField(read_only=False, required=False)
 
     class Meta:
         model = Tariff
@@ -23,11 +24,27 @@ class GroupSerializer(serializers.ModelSerializer):
     Serializer for for working with group
     """
 
-    tariff = TariffSerializer()
+    tariff = TariffSerializer(required=False)
+
+    count_person = serializers.SerializerMethodField('get_count_person', label='Количество сотрудников')
+
+    def get_count_person(self, obj):
+        return User.objects.filter(group=obj).count()
 
     class Meta:
         model = CustomGroup
-        fields = '__all__'
+        fields = ['id', 'tariff', 'name', 'count_person']
+
+    def create(self, validated_data):
+        auth_company = self.context['request'].auth.user.company_data
+        user = [self.context['request'].auth.user]
+
+        if not CustomGroup.objects.filter(user_group__in=user).exists():
+            admin_group = CustomGroup.objects.create(name='Администрация', company=auth_company)
+            admin_group.user_group.set(user)
+
+        instance = CustomGroup.objects.create(company=auth_company, **validated_data)
+        return instance
 
 
 class UserCreateSerializer(serializers.ModelSerializer):

@@ -140,9 +140,11 @@ class TariffView(ModelViewSet):
 )
                   )
 class GroupView(ModelViewSet):
-    queryset = CustomGroup.objects.all()
     serializer_class = GroupSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsCompanyAuthenticated]
+
+    def get_queryset(self):
+        return CustomGroup.objects.filter(company=self.request.auth.user.company_data)
 
 
 @method_decorator(name='post', decorator=swagger_auto_schema(
