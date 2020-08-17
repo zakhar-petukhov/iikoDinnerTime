@@ -227,10 +227,10 @@ class DinnerCheckOrderViewSet(ModelViewSet):
         company_id = self.request.user
 
         if user_id:
-            return Dinner.objects.filter(user_id=user_id)
+            return Dinner.objects.filter(user_id=user_id).order_by('-id')
 
         if not company_id.is_anonymous:
-            return Dinner.objects.filter(company_id=company_id.company_data.id)
+            return Dinner.objects.filter(company_id=company_id.company_data.id).order_by('-id')
 
 
 @method_decorator(name='create', decorator=swagger_auto_schema(
@@ -259,10 +259,19 @@ class CompanyOrderView(ModelViewSet):
     permission_classes = [IsCompanyAuthenticated]
     pagination_class = pagination.LimitOffsetPagination
 
-    def get_queryset(self):
-        company_id = self.request.user.id
+    def get_queryset(self):  # TODO: сделать отдельно админку и не городить все в один запрос, нарушает принцип SOLID
+        is_superuser = self.request.user.is_superuser
         order_id = self.kwargs.get('order_id', None)
-        if order_id:
-            return CompanyOrder.objects.filter(id=order_id, company__id=company_id)
 
-        return CompanyOrder.objects.filter(company__id=company_id)
+        if is_superuser:
+            if order_id:
+                return CompanyOrder.objects.filter(id=order_id).order_by('-id')
+
+            return CompanyOrder.objects.all().order_by('-id')
+
+        else:
+            company_id = self.request.user.id
+            if order_id:
+                return CompanyOrder.objects.filter(id=order_id, company__id=company_id).order_by('-id')
+
+            return CompanyOrder.objects.filter(company__id=company_id).order_by('-id')

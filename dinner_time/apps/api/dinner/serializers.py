@@ -3,7 +3,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 
 from apps.api.common.serializers import SettingsSerializer, ImagesSerializer
-from apps.api.company.serializers import CompanyDetailSerializer
+from apps.api.company.serializers import CompanyDetailSerializer, CompanyGetSerializer
 from apps.api.dinner.models import *
 from apps.api.dinner.utils import get_day_menu
 from apps.api.users.serializers import UserSerializer
@@ -140,10 +140,11 @@ class DinnerOrderSerializer(serializers.ModelSerializer):
     """
 
     dinners = DinnerSerializer(many=True)
+    company = CompanyGetSerializer(required=False)
 
     class Meta:
         model = CompanyOrder
-        fields = ['id', 'company', 'dinners', 'create_date']
+        fields = ['id', 'company', 'dinners', 'create_date', 'full_cost', 'send_iiko']
 
     def validate_dinners(self, value):
         request = self.context.get('request')

@@ -11,6 +11,17 @@ class CompanyOrder(Model):
     dinners = ManyToManyField('dinner.Dinner', related_name='in_orders', blank=True, verbose_name='Заказанные обеды')
 
     create_date = DateTimeField(auto_now_add=True, auto_now=False, null=True, blank=True, verbose_name='Создано')
+    send_iiko = BooleanField(default=False, verbose_name='Отправление в айко')
+
+    @property
+    def full_cost(self):
+        cost = 0
+        if not cost:
+            all_dinner = self.dinners.all()
+            for obj in all_dinner:
+                cost += obj.full_cost
+
+        return cost
 
     class Meta:
         verbose_name = "Одобренное меню"
