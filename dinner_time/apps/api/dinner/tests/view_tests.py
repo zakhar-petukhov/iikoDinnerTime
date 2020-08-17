@@ -19,7 +19,7 @@ class TestDinnerView:
         user_data = json.loads(response.content)
 
         assert response.status_code == 201
-        user_data['name'] = 'Вторые блюда'
+        assert user_data['name'] == 'Вторые блюда'
 
     def test_create_menu(self, api_client, get_token_company, create_dish):
         token_company, company = get_token_company
@@ -49,7 +49,7 @@ class TestDinnerView:
         user_data = json.loads(response.content)
 
         assert response.status_code == 200
-        user_data[0]['name'] = 'Первые блюда'
+        assert user_data[0]['name'] == 'Первые блюда'
 
     def test_get_list_category(self, api_client, get_token_company, create_category_dish):
         category = create_category_dish()
@@ -61,7 +61,7 @@ class TestDinnerView:
         user_data = json.loads(response.content)
 
         assert response.status_code == 200
-        user_data[0]['name'] = 'Первые блюда'
+        assert user_data[0]['name'] == 'Первые блюда'
 
     def test_get_dish(self, api_client, get_token_company, create_complex_dish):
         create_complex_dish()
@@ -73,7 +73,7 @@ class TestDinnerView:
         user_data = json.loads(response.content)
 
         assert response.status_code == 200
-        user_data[0]['name'] = 'Комплексный обед №1'
+        assert user_data[0]['name'] == 'Комплексный обед №1'
 
     def test_change_dish(self, api_client, get_token_company, create_dish, create_second_category_dish):
         token_company, company = get_token_company
@@ -90,7 +90,7 @@ class TestDinnerView:
         response = api_client.put(url, data=json.dumps(data), content_type='application/json')
         user_data = json.loads(response.content)
         assert response.status_code == 200
-        user_data['category_dish']['name'] = "Вторые блюда"
+        assert user_data['category_dish']['name'] == "Вторые блюда"
 
     def test_change_category_dish(self, api_client, get_token_company, create_category_dish):
         token_company, company = get_token_company
@@ -104,7 +104,7 @@ class TestDinnerView:
         response = api_client.put(url, data=json.dumps(data), content_type='application/json')
         user_data = json.loads(response.content)
         assert response.status_code == 200
-        user_data['name'] = "Последние блюда"
+        assert user_data['name'] == "Последние блюда"
 
     def test_change_day_menu(self, api_client, get_token_company, create_menu, create_dish):
         token_company, company = get_token_company
@@ -203,7 +203,7 @@ class TestDinnerView:
         template_data = json.loads(response.content)
 
         assert response.status_code == 200
-        template_data[0]['number_week'] = 0
+        assert template_data[0]['number_week'] == 1
 
     def test_create_week_menu(self, api_client, get_token_company, create_menu):
         token_company, company = get_token_company

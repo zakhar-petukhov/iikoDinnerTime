@@ -2,6 +2,7 @@ import pytest
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
+from apps.api.dinner.utils import get_number_week
 from apps.api.common.models import Settings
 from apps.api.company.models import Company, Department
 from apps.api.dinner.models import CategoryDish, Dish, DayMenu, Dinner, CompanyOrder, Template, WeekMenu
@@ -221,7 +222,7 @@ def create_referral_upid(db, get_token_user):
 @pytest.fixture
 def create_week_menu(db, create_menu):
     def make_create_week_menu():
-        week_menu = WeekMenu.objects.create()
+        week_menu = WeekMenu.objects.create(name='Первая неделя', number_week=get_number_week())
         week_menu.dishes.add(create_menu())
         return week_menu
 
