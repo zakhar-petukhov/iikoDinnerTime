@@ -47,13 +47,13 @@ class Dinner(Model):
         if not cost:
             all_dinner = self.dishes.all()
             for obj in all_dinner:
-                cost += obj.dish.cost
+                cost += obj.cost
 
         return cost
 
     @property
     def status_name(self):
-        if self.status:
+        if self.status is not None:
             return self.STATUSES[self.status][1]
         return 'Без статуса'
 
@@ -108,9 +108,10 @@ class DayMenu(Model):
     # Check whether this menu is available for ordering.
     @property
     def available_for_order(self):
-        now_time = datetime.datetime.now().strftime('%H.%M')
-        if now_time <= self.close_order_time.close_order_time.strftime('%H.%M'):
-            return True
+        if self.close_order_time:
+            now_time = datetime.datetime.now().strftime('%H.%M')
+            if now_time <= self.close_order_time.close_order_time.strftime('%H.%M'):
+                return True
 
     class Meta:
         verbose_name = "Дневное меню"
@@ -120,7 +121,7 @@ class DayMenu(Model):
 class WeekMenu(Model):
     name = CharField(max_length=40, blank=True, null=True, verbose_name='Название шаблона')
     number_week = SmallIntegerField(blank=True, null=True, verbose_name='Номер недели')
-    dishes = ManyToManyField('dinner.DayMenu', blank=True, verbose_name='Дневное меню')
+    dishes = ManyToManyField('dinner.DayMenu', related_name='week_dishes', blank=True, verbose_name='Дневное меню')
 
     class Meta:
         verbose_name = "Недельное меню"
