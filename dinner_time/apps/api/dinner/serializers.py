@@ -111,7 +111,8 @@ class DinnerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Dinner
-        fields = ['id', 'dishes', 'user', 'company', 'date_action_begin', 'status', 'full_cost', 'status_name']
+        fields = ['id', 'dishes', 'user', 'company', 'create_date', 'date_action_begin', 'status', 'full_cost',
+                  'status_name']
 
     def create(self, validated_data):
         request = self.context.get('request')

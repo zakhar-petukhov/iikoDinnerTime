@@ -2,12 +2,12 @@ from django.utils.decorators import method_decorator
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import pagination
-from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
 from apps.api.dinner.serializers import *
 from .data_for_swagger import *
+from .utils import get_menu_on_two_weeks
 
 
 @method_decorator(name='list', decorator=swagger_auto_schema(
@@ -140,8 +140,14 @@ class DishCategoryViewSet(ModelViewSet):
                   )
 class MenuViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
-    queryset = DayMenu.objects.all()
     serializer_class = MenuSerializer
+
+    def get_queryset(self):
+        day_id = self.kwargs.get("day_id")
+        if day_id:
+            return DayMenu.objects.filter(pk=day_id)
+
+        return DayMenu.objects.all()
 
     def get_object(self):
         return get_object_or_404(DayMenu, id=self.kwargs.get("menu_id"))
@@ -247,7 +253,7 @@ class TemplateViewSet(ModelViewSet):
                   )
 class WeekMenuViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
-    queryset = WeekMenu.objects.all()
+    queryset = get_menu_on_two_weeks()
     serializer_class = WeekMenuSerializer
 
     def get_object(self):
