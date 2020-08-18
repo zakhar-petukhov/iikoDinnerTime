@@ -100,18 +100,26 @@ class MenuSerializer(serializers.ModelSerializer):
         return internal_value
 
 
+class DinnerDishSerializer(serializers.ModelSerializer):
+    dish = DishSerializer()
+
+    class Meta:
+        model = DinnerDish
+        fields = ('id', 'dish', 'count_dish')
+
+
 class DinnerSerializer(serializers.ModelSerializer):
     """
     Serializer for dinner
     """
 
-    dishes = DishSerializer(many=True, required=False)
+    dinner_to_dish = DinnerDishSerializer(many=True, required=False)
     user = UserSerializer(required=False)
     company = CompanyDetailSerializer(required=False)
 
     class Meta:
         model = Dinner
-        fields = ['id', 'dishes', 'user', 'company', 'create_date', 'date_action_begin', 'status', 'full_cost',
+        fields = ['id', 'dinner_to_dish', 'user', 'company', 'create_date', 'date_action_begin', 'status', 'full_cost',
                   'status_name']
 
     def create(self, validated_data):
@@ -125,11 +133,11 @@ class DinnerSerializer(serializers.ModelSerializer):
         }
 
         validated_data.update(data)
-        dishes = validated_data.pop("dishes", [])
+        dishes = request.data.pop("dishes", [])
         dinner = Dinner.objects.create(**validated_data)
 
         for dish in dishes:
-            dinner.dishes.add(dish["id"])
+            DinnerDish.objects.create(dish_id=dish['id'], dinner=dinner, count_dish=dish['count_dish'])
 
         return dinner
 

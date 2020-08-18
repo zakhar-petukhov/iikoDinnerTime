@@ -40,7 +40,8 @@ class Dinner(Model):
         (CONFIRMED, 'Подтвержден'),
     ]
 
-    dishes = ManyToManyField('dinner.Dish', related_name='dinner_dishes', verbose_name='Блюдо', blank=True)
+    dishes = ManyToManyField('dinner.Dish', related_name='dinner_dishes', blank=True, through='dinner.DinnerDish',
+                             verbose_name='Блюда')
     user = ForeignKey('users.User', on_delete=PROTECT, related_name='dinner_user', verbose_name='Заказчик',
                       blank=True, null=True)
     company = ForeignKey('company.Company', on_delete=PROTECT, related_name='dinner_company', verbose_name='Компания',
@@ -107,6 +108,12 @@ class Dish(Model):
     class Meta:
         verbose_name = "Блюдо"
         verbose_name_plural = "Блюдо"
+
+
+class DinnerDish(Model):
+    dish = ForeignKey(Dish, on_delete=CASCADE, related_name='dish_to_dinner', verbose_name='Блюдо')
+    dinner = ForeignKey(Dinner, on_delete=CASCADE, related_name='dinner_to_dish', verbose_name='Обед')
+    count_dish = SmallIntegerField(verbose_name='Количество блюд')
 
 
 class DayMenu(Model):

@@ -18,7 +18,8 @@ request_for_working_menu = Schema(type=TYPE_OBJECT,
 request_for_create_dinner = Schema(type=TYPE_OBJECT,
                                    properties={
                                        'dishes': Schema(type=TYPE_ARRAY, title='Блюда',
-                                                        items=Items(enum={'id': TYPE_INTEGER},
+                                                        items=Items(enum={'id': TYPE_INTEGER,
+                                                                          'count_dish': TYPE_INTEGER},
                                                                     type=TYPE_STRING)),
                                        'date_action_begin': Schema(type=TYPE_STRING, title='Заказ на дату')
                                    })
