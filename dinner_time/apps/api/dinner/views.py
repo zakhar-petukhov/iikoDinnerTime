@@ -144,7 +144,17 @@ class MenuViewSet(ModelViewSet):
 
     def get_queryset(self):
         day_id = self.kwargs.get("day_id")
-        if day_id:
+        category_id = self.kwargs.get("category_id")
+
+        if day_id and category_id:
+            category_dish = Dish.objects.filter(category_dish=category_id)
+            day_menu = DayMenu.objects.filter(id=day_id).prefetch_related(
+                Prefetch('dish', queryset=category_dish)
+            )
+
+            return day_menu
+
+        elif day_id:
             return DayMenu.objects.filter(pk=day_id)
 
         return DayMenu.objects.all()
