@@ -124,7 +124,7 @@ class DinnerSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         request = self.context.get('request')
-        company_id = request.user.parent if request.user.parent else request.user.id
+        company_id = request.user.parent.id if request.user.parent else request.user.id
         user_id = request.user
 
         data = {
@@ -137,7 +137,7 @@ class DinnerSerializer(serializers.ModelSerializer):
         dinner = Dinner.objects.create(**validated_data)
 
         for dish in dishes:
-            DinnerDish.objects.create(dish_id=dish['id'], dinner=dinner, count_dish=dish['count_dish'])
+            DinnerDish.objects.create(dish_id=dish['id'], dinner=dinner, count_dish=dish.get('count_dish', 1))
 
         return dinner
 
