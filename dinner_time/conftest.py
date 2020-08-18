@@ -2,10 +2,10 @@ import pytest
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
-from apps.api.dinner.utils import get_number_week
 from apps.api.common.models import Settings
 from apps.api.company.models import Company, Department
-from apps.api.dinner.models import CategoryDish, Dish, DayMenu, Dinner, CompanyOrder, Template, WeekMenu
+from apps.api.dinner.models import CategoryDish, Dish, DayMenu, Dinner, CompanyOrder, Template, WeekMenu, DinnerDish
+from apps.api.dinner.utils import get_number_week
 from apps.api.users.models import User, Tariff, CustomGroup
 from apps.api.users.utils import create_ref_link_for_update_auth_data
 
@@ -198,8 +198,7 @@ def create_company_order(db, get_token_company, get_token_user, create_dish):
         token, user = get_token_user
         dish = create_dish()
         dinner = Dinner.objects.create(user=user, company=company.company_data, status=status)
-        dinner.dishes.add(dish)
-
+        DinnerDish.objects.create(dish=dish, dinner=dinner, count_dish=3)
         company_order = CompanyOrder.objects.create(company=company)
         company_order.dinners.add(dinner)
 

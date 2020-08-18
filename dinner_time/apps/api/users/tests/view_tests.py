@@ -116,11 +116,13 @@ class TestUserView:
 
     def test_user_create_dinner(self, api_client, get_token_user, create_dish):
         token, user = get_token_user
+        dish_id = create_dish().id
         url = reverse('USERS:user_add_dish')
+
         data = {
             "dishes": [
                 {
-                    "id": create_dish().id
+                    "id": dish_id
                 }
             ]
         }
@@ -130,4 +132,4 @@ class TestUserView:
         user_data = json.loads(response.content)
 
         assert response.status_code == 201
-        assert user_data['dishes'][0]['name'] == 'Томатный суп'
+        assert user_data['dinner_to_dish'][0]['dish']['name'] == 'Томатный суп'

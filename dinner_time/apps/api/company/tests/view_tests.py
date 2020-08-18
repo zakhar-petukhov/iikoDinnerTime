@@ -154,7 +154,7 @@ class TestDepartmentView:
         order_data = json.loads(response.content)
 
         assert response.status_code == 200
-        assert order_data[0]['dinners'][0]['dishes'][0]['name'] == 'Томатный суп'
+        assert order_data[0]['dinners'][0]['dinner_to_dish'][0]['dish']['name'] == 'Томатный суп'
 
     def test_create_order(self, api_client, get_token_company, create_company_order):
         token, company = get_token_company
