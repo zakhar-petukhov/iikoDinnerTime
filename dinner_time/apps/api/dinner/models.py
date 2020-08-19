@@ -56,10 +56,12 @@ class Dinner(Model):
     @property
     def full_cost(self):
         cost = 0
+
         if not cost:
             all_dinner = self.dishes.all()
             for obj in all_dinner:
-                cost += obj.cost
+                count = obj.dish_to_dinner.first().count
+                cost += (obj.cost * count)
 
         return cost
 

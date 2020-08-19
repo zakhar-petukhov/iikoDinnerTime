@@ -2,14 +2,15 @@ from datetime import datetime
 
 import pytz
 from django.conf import settings
-from django.contrib.auth.models import AbstractUser, UserManager, Group
+from django.contrib.auth.models import AbstractUser, UserManager
 from django.db.models import *
 from mptt.fields import TreeForeignKey
 from mptt.models import MPTTModel
 from phonenumber_field.modelfields import PhoneNumberField
 
 
-class CustomGroup(Group):
+class CustomGroup(Model):
+    name = CharField(max_length=150, null=True, blank=True, verbose_name='Название')
     tariff = ForeignKey('users.Tariff', on_delete=PROTECT, related_name='tariff_group', blank=True,
                         null=True, verbose_name='Тариф')
     company = ForeignKey('company.Company', on_delete=PROTECT, related_name='groups_company', blank=True,
