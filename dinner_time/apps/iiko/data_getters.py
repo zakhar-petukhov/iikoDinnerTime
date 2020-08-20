@@ -30,13 +30,15 @@ def send_dishes_data(kwargs):
     }
     for dinner in dinners:
         data['order']['date'] = dinner.date_action_begin.strftime('%Y-%m-%d %H:%M:%S')
+        dinner_to_dish = dinner.dinner_to_dish.first()
         for dish in dinner.dishes.all():
             data['order']['items'].append(
                 {
                     "id": dish.upid,
                     "name": dish.name,
                     "code": dish.code,
-                    "amount": 1,
+                    "amount": dinner_to_dish.count_dish if dinner_to_dish else 1,
+                    "amount": dish.dish_to_dinner.get(dish=dish, dinner=dinner).count_dish,
                     "sum": dish.cost,
                 }
             )

@@ -6,12 +6,22 @@ from apps.iiko.api import IikoService
 
 
 def create_order(request, company_order_id):
-    company_order = CompanyOrder.objects.filter(id=company_order_id).first()
+    STATUS_ERROR = "Произошла ошибка при создании заказа"
+
+    company_order = CompanyOrder.objects.filter(id=company_order_id, send_iiko=False).first()
+
     try:
+        if not company_order:
+            STATUS_ERROR = "Заказ уже был отправлен в iiko, повторная отправка невозможна"
+            raise Exception(STATUS_ERROR)
+
         data_send_dishes = data_getters.send_dishes_data(company_order)
 
         iiko_service = IikoService()
         iiko_service.create_company_order(data_send_dishes)
+
+        company_order.send_iiko = True
+        company_order.save()
 
         return {
             'error': False,
@@ -27,7 +37,7 @@ def create_order(request, company_order_id):
         return {
             'error': True,
             'content': {
-                'status': "Произошла ошибка при создании заказа"
+                'status': STATUS_ERROR
             },
             'error_text': None
         }
