@@ -1,11 +1,12 @@
+from datetime import datetime, timedelta
+
 import pytest
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 from apps.api.common.models import Settings
 from apps.api.company.models import Company, Department
-from apps.api.dinner.models import CategoryDish, Dish, DayMenu, Dinner, CompanyOrder, Template, WeekMenu, DinnerDish
-from apps.api.dinner.utils import get_number_week
+from apps.api.dinner.models import CategoryDish, Dish, DayMenu, Dinner, CompanyOrder, WeekMenu, DinnerDish
 from apps.api.users.models import User, Tariff, CustomGroup
 from apps.api.users.utils import create_ref_link_for_update_auth_data
 
@@ -221,21 +222,14 @@ def create_referral_upid(db, get_token_user):
 @pytest.fixture
 def create_week_menu(db, create_menu):
     def make_create_week_menu():
-        week_menu = WeekMenu.objects.create(name='Первая неделя', number_week=get_number_week())
+        start_menu = datetime.now() - timedelta(days=5)
+        close_menu = datetime.now() + timedelta(days=5)
+
+        week_menu = WeekMenu.objects.create(name='Первая неделя',
+                                            start_menu=start_menu.strftime("%Y-%m-%d"),
+                                            close_menu=close_menu.strftime("%Y-%m-%d")
+                                            )
         week_menu.dishes.add(create_menu())
         return week_menu
 
     return make_create_week_menu
-
-
-@pytest.fixture
-def create_template(db, create_week_menu):
-    def make_create_template():
-        data = {
-            "name": "Шаблон №0",
-            "number_week": 1
-        }
-
-        return Template.objects.create(menu=create_week_menu(), **data)
-
-    return make_create_template

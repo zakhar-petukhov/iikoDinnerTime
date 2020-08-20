@@ -1,7 +1,9 @@
 import json
+from datetime import datetime, timedelta
 
 import pytest
 from django.urls import reverse
+from django.utils.http import urlencode
 
 
 @pytest.mark.django_db
@@ -148,63 +150,6 @@ class TestDinnerView:
 
         assert response.status_code == 204
 
-    def test_create_template(self, api_client, get_token_company, create_week_menu):
-        token_company, company = get_token_company
-        url = reverse('DINNER:template-list')
-
-        data = {
-            "name": "Шаблон №1",
-            "number_week": 1,
-            "menu": {
-                "id": create_week_menu().id
-            }
-        }
-
-        api_client.credentials(HTTP_AUTHORIZATION='Token ' + token_company.key)
-        response = api_client.post(url, data=json.dumps(data), content_type='application/json')
-        template_data = json.loads(response.content)
-
-        assert response.status_code == 201
-        assert template_data['name'] == "Шаблон №1"
-
-    def test_update_template(self, api_client, get_token_company, create_template):
-        token_company, company = get_token_company
-        url = reverse('DINNER:template-detail', kwargs={'pk': create_template().id})
-
-        data = {
-            "name": "Шаблон №2",
-            "number_week": 2
-        }
-
-        api_client.credentials(HTTP_AUTHORIZATION='Token ' + token_company.key)
-        response = api_client.put(url, data=json.dumps(data), content_type='application/json')
-        template_data = json.loads(response.content)
-
-        assert response.status_code == 200
-        assert template_data['name'] == "Шаблон №2"
-        assert template_data['number_week'] == 2
-
-    def test_delete_template(self, api_client, get_token_company, create_template):
-        token_company, company = get_token_company
-        url = reverse('DINNER:template-detail', kwargs={'pk': create_template().id})
-        api_client.credentials(HTTP_AUTHORIZATION='Token ' + token_company.key)
-        response = api_client.delete(url)
-
-        assert response.status_code == 204
-
-    def test_get_template(self, api_client, get_token_company, create_template):
-        token_company, company = get_token_company
-        create_template()
-
-        url = reverse('DINNER:template-list')
-        api_client.credentials(HTTP_AUTHORIZATION='Token ' + token_company.key)
-        response = api_client.get(url)
-
-        template_data = json.loads(response.content)
-
-        assert response.status_code == 200
-        assert template_data[0]['number_week'] == 1
-
     def test_create_week_menu(self, api_client, get_token_company, create_menu):
         token_company, company = get_token_company
         url = reverse('DINNER:week_menu-list')
@@ -273,7 +218,11 @@ class TestDinnerView:
     def test_get_week_menu(self, api_client, get_token_company, create_week_menu):
         token_company, company = get_token_company
         create_week_menu()
-        url = reverse('DINNER:week_menu-list')
+        start_menu = datetime.now() - timedelta(days=5)
+        close_menu = datetime.now() + timedelta(days=5)
+        query_params = {'start_menu': start_menu.strftime("%Y-%m-%d"), 'close_menu': close_menu.strftime("%Y-%m-%d")}
+
+        url = f"{reverse('DINNER:week_menu-list')}?{urlencode(query_params)}"
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token_company.key)
 
         response = api_client.get(url)
