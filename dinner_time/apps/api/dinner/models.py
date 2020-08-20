@@ -60,7 +60,7 @@ class Dinner(Model):
         if not cost:
             all_dinner = self.dishes.all()
             for obj in all_dinner:
-                count = obj.dish_to_dinner.first().count
+                count = obj.dish_to_dinner.get(dish=obj, dinner=self).count_dish
                 cost += (obj.cost * count)
 
         return cost
