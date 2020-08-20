@@ -7,7 +7,6 @@ from rest_framework.viewsets import ModelViewSet
 
 from apps.api.dinner.serializers import *
 from .data_for_swagger import *
-from .utils import get_menu_on_two_weeks
 
 
 @method_decorator(name='list', decorator=swagger_auto_schema(
@@ -146,77 +145,28 @@ class MenuViewSet(ModelViewSet):
         day_id = self.kwargs.get("day_id")
         category_id = self.kwargs.get("category_id")
 
+        query_params = self.request.query_params
+        start_menu = query_params['start_menu']
+        close_menu = query_params['close_menu']
+
         if day_id and category_id:
             category_dish = Dish.objects.filter(category_dish=category_id)
-            day_menu = DayMenu.objects.filter(id=day_id).prefetch_related(
+            day_menu = DayMenu.objects.filter(
+                number_day=day_id,
+                week_dishes__start_menu__gte=start_menu, week_dishes__close_menu__lte=close_menu).prefetch_related(
                 Prefetch('dish', queryset=category_dish)
             )
 
             return day_menu
 
         elif day_id:
-            return DayMenu.objects.filter(pk=day_id)
+            return DayMenu.objects.filter(number_day=day_id, week_dishes__start_menu__gte=start_menu,
+                                          week_dishes__close_menu__lte=close_menu)
 
-        return DayMenu.objects.all()
+        return DayMenu.objects.filter(week_dishes__start_menu__gte=start_menu, week_dishes__close_menu__lte=close_menu)
 
     def get_object(self):
         return get_object_or_404(DayMenu, id=self.kwargs.get("menu_id"))
-
-
-@method_decorator(name='list', decorator=swagger_auto_schema(
-    operation_summary='Просмотр темплейта.',
-    responses={
-        '200': openapi.Response('Успешно', TemplateSerializer),
-        '400': 'Неверный формат запроса'
-    }
-)
-                  )
-@method_decorator(name='update', decorator=swagger_auto_schema(
-    operation_summary='Обновление темплейта.',
-    operation_description='''
-Метод позволяет:
-1) изменить название шаблона.
-2) изменить номер недели для показа (1-4).
-
-ps: если надо менять что то по блюдам, то все запросы в раздел блюда
-''',
-    request_body=request_for_template,
-    responses={
-        '200': openapi.Response('Успешно', TemplateSerializer),
-        '400': 'Неверный формат запроса'
-    }
-)
-                  )
-@method_decorator(name='destroy', decorator=swagger_auto_schema(
-    operation_summary='Удаление темплейта.',
-    responses={
-        '204': 'Удалено',
-        '400': 'Неверный формат запроса'
-    }
-)
-                  )
-@method_decorator(name='create', decorator=swagger_auto_schema(
-    operation_summary='Создание шаблона.',
-    operation_description='''
-Как работает?
-1) дать название этому шаблону.
-2) выставить номер недели, на которой будет показываться шаблон.
-3) добавить "id" недельного меню.
-''',
-    request_body=request_for_template,
-    responses={
-        '201': openapi.Response('Создано', TemplateSerializer),
-        '400': 'Неверный формат запроса'
-    }
-)
-                  )
-class TemplateViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticated]
-    queryset = Template.objects.all()
-    serializer_class = TemplateSerializer
-
-    def get_object(self):
-        return get_object_or_404(Template, id=self.kwargs.get("pk"))
 
 
 @method_decorator(name='list', decorator=swagger_auto_schema(
@@ -263,8 +213,14 @@ class TemplateViewSet(ModelViewSet):
                   )
 class WeekMenuViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
-    queryset = get_menu_on_two_weeks()
     serializer_class = WeekMenuSerializer
+
+    def get_queryset(self):
+        query_params = self.request.query_params
+        start_menu = query_params['start_menu']
+        close_menu = query_params['close_menu']
+
+        return WeekMenu.objects.filter(start_menu__gte=start_menu, close_menu__lte=close_menu)
 
     def get_object(self):
         return get_object_or_404(WeekMenu, id=self.kwargs.get("pk"))

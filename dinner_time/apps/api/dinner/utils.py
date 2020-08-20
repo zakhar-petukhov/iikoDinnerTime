@@ -1,6 +1,4 @@
-import datetime
-
-from apps.api.dinner.models import Dish, WeekMenu
+from apps.api.dinner.models import Dish
 
 
 def get_day_menu(instance, dish_validated_data):
@@ -18,14 +16,3 @@ def get_day_menu(instance, dish_validated_data):
             instance.dish.remove(dish)
         else:
             instance.dish.add(dish)
-
-
-def get_number_week():
-    day_of_month = datetime.datetime.now().day
-    week_number = (day_of_month - 1) // 7 + 1
-    return week_number
-
-
-def get_menu_on_two_weeks():
-    number_week = get_number_week()
-    return WeekMenu.objects.filter(number_week__in=[number_week, number_week + 1])
