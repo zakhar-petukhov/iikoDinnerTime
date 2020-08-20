@@ -140,21 +140,10 @@ class DayMenu(Model):
 
 class WeekMenu(Model):
     name = CharField(max_length=40, blank=True, null=True, verbose_name='Название шаблона')
-    number_week = SmallIntegerField(blank=True, null=True, verbose_name='Номер недели')
+    start_menu = DateField(unique=True, null=True, blank=True, verbose_name='С какого числа показывать меню')
+    close_menu = DateField(unique=True, null=True, blank=True, verbose_name='До какого числа действует меню')
     dishes = ManyToManyField('dinner.DayMenu', related_name='week_dishes', blank=True, verbose_name='Дневное меню')
 
     class Meta:
         verbose_name = "Недельное меню"
         verbose_name_plural = "Недельное меню"
-
-
-# TODO: шаблон перемещается в недельное меню, но может в будущем опять вернется
-class Template(Model):
-    name = CharField(max_length=40, blank=True, null=True, verbose_name='Название шаблона')
-    number_week = SmallIntegerField(blank=True, null=True, verbose_name='Номер недели')
-    menu = ForeignKey('dinner.WeekMenu', on_delete=PROTECT, null=True, blank=True,
-                      verbose_name='Меню')
-
-    class Meta:
-        verbose_name = "Шаблон"
-        verbose_name_plural = "Шаблон"
