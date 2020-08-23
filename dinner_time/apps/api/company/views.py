@@ -232,6 +232,18 @@ class DinnerCheckOrderViewSet(ModelViewSet):
         if not company_id.is_anonymous:
             return Dinner.objects.filter(company_id=company_id.company_data.id).order_by('-id')
 
+    def list(self, request, *args, **kwargs):
+        serializer_data = super().list(request, *args, **kwargs).data
+        month_oversupply_tariff = 0
+        for oversupply_tariff in serializer_data:
+            month_oversupply_tariff += oversupply_tariff['oversupply_tariff']
+
+        serializer_data.append({'month_oversupply_tariff': month_oversupply_tariff})
+
+        custom_data = {'month_oversupply_tariff': month_oversupply_tariff, "data": serializer_data}
+
+        return response.Response(custom_data)
+
 
 @method_decorator(name='create', decorator=swagger_auto_schema(
     operation_summary='Создание заказа от компании',

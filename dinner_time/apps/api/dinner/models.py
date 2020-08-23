@@ -2,7 +2,7 @@ import datetime
 
 from django.db.models import *
 
-from apps.api.users.models import User
+from apps.api.users.models import User, CustomGroup
 
 
 class CompanyOrder(Model):
@@ -16,10 +16,10 @@ class CompanyOrder(Model):
     @property
     def full_cost(self):
         cost = 0
-        if not cost:
-            all_dinner = self.dinners.all()
-            for obj in all_dinner:
-                cost += obj.full_cost
+
+        all_dinner = self.dinners.all()
+        for obj in all_dinner:
+            cost += obj.full_cost
 
         return cost
 
@@ -57,13 +57,22 @@ class Dinner(Model):
     def full_cost(self):
         cost = 0
 
-        if not cost:
-            all_dinner = self.dishes.all()
-            for obj in all_dinner:
-                count = obj.dish_to_dinner.get(dish=obj, dinner=self).count_dish
-                cost += (obj.cost * count)
+        all_dinner = self.dishes.all()
+        for obj in all_dinner:
+            count = obj.dish_to_dinner.get(dish=obj, dinner=self).count_dish
+            cost += (obj.cost * count)
 
         return cost
+
+    @property
+    def oversupply_tariff(self):
+        tariff = self.user.group.tariff.max_cost_day
+        oversupply_cost = tariff - self.full_cost
+
+        if oversupply_cost < 0:
+            return abs(oversupply_cost)
+
+        return 0
 
     @property
     def status_name(self):
