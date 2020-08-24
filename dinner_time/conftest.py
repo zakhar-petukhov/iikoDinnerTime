@@ -139,7 +139,7 @@ def create_complex_dish(django_user_model, get_token_company, create_dish):
 
 
 @pytest.fixture
-def create_tariff(django_user_model, get_token_user):
+def create_tariff(django_user_model):
     def make_tariff():
         data = {
             "name": "Лайт",
@@ -153,7 +153,7 @@ def create_tariff(django_user_model, get_token_user):
 
 
 @pytest.fixture
-def create_group(django_user_model, get_token_user, create_tariff):
+def create_group(django_user_model, create_tariff):
     def make_group():
         data = {
             "name": "Айтишники",
@@ -177,10 +177,10 @@ def create_menu(django_user_model, get_token_company, create_dish):
 
 
 @pytest.fixture
-def get_token_user(db, create_user, create_company):
+def get_token_user(db, create_user, create_company, create_group):
     user = create_user(phone='89313147222', first_name='Тест', last_name="Тестовов",
                        email='test@protonmail.com', username='test', password='test', is_superuser=True,
-                       is_staff=True)
+                       is_staff=True, group=create_group())
     token, _ = Token.objects.get_or_create(user=user)
     return token, user
 
