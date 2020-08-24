@@ -23,6 +23,16 @@ class CompanyOrder(Model):
 
         return cost
 
+    @property
+    def dinners_oversupply_tariff(self):
+        sum_oversupply_tariff = 0
+
+        all_dinner = self.dinners.all()
+        for obj in all_dinner:
+            sum_oversupply_tariff += obj.oversupply_tariff
+
+        return sum_oversupply_tariff
+
     class Meta:
         verbose_name = "Одобренное меню"
         verbose_name_plural = "Одобренное меню"

@@ -85,6 +85,8 @@ class User(AbstractUser, MPTTModel):
 
 class Tariff(Model):
     name = CharField(max_length=20, null=True, blank=True, verbose_name='Название')
+    company = ForeignKey('company.Company', on_delete=PROTECT, related_name='tariff_company', blank=True,
+                         null=True, verbose_name='Компания')
     max_cost_day = IntegerField(null=True, blank=True, verbose_name='Дневная сумма заказа')
     description = CharField(max_length=130, null=True, blank=True, verbose_name='Описание')
     is_blocked = BooleanField(default=False, verbose_name='Заблокирован')
