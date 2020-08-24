@@ -34,3 +34,14 @@ def send_message(company_name, upid, data, is_company):
 
     email = EmailMessage(header, body, to=[data.get('email')])
     email.send()
+
+
+def check_oversupply_tariff(serializer_data, search_key, return_key):
+    oversupply_tariff = 0
+    for tariff in serializer_data:
+        oversupply_tariff += tariff[search_key]
+
+    return {
+        return_key: oversupply_tariff,
+        "data": serializer_data
+    }

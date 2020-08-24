@@ -152,7 +152,7 @@ class DinnerOrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CompanyOrder
-        fields = ['id', 'company', 'dinners', 'create_date', 'full_cost', 'send_iiko']
+        fields = ['id', 'company', 'dinners', 'create_date', 'full_cost', 'dinners_oversupply_tariff', 'send_iiko']
 
     def validate_dinners(self, value):
         request = self.context.get('request')

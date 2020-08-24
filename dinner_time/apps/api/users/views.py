@@ -4,7 +4,7 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
@@ -102,9 +102,18 @@ class UserCreateDinnerView(ModelViewSet):
 )
                   )
 class TariffView(ModelViewSet):
-    queryset = Tariff.objects.all()
     serializer_class = TariffSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsCompanyAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        is_admin = self.request.user.is_superuser
+
+        if not is_admin:
+            company = user.company_data
+            return Tariff.objects.filter(company=company)
+
+        return Tariff.objects.all()
 
 
 @method_decorator(name='list', decorator=swagger_auto_schema(

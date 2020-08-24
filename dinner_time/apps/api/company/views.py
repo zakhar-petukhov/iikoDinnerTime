@@ -13,9 +13,9 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.viewsets import ModelViewSet
 
 from apps.api.company.data_for_swagger import *
-from apps.api.company.filters import OrderDateFilter
+from apps.api.company.filters import UserOrderDateFilter, CompanyOrderDateFilter
 from apps.api.company.serializers import *
-from apps.api.company.utils import create_user_or_company
+from apps.api.company.utils import create_user_or_company, check_oversupply_tariff
 from apps.api.dinner.models import Dinner, CompanyOrder
 from apps.api.dinner.serializers import DinnerSerializer, DinnerOrderSerializer
 from apps.api.users.models import User
@@ -207,8 +207,8 @@ class DepartmentCreateUserViewSet(ModelViewSet):
     operation_description='''
 При передаче user_id сотрудника покажется заказы только этого сотрудника.
 Можно использовать фильтры:
-date_action_begin__lte - с какого числа
-date_action_begin__gte - по какое число
+date_action_begin__gte - с какого числа
+date_action_begin__lte - по какое число 
 ''',
     responses={
         '200': openapi.Response('Успешно', DinnerSerializer),
@@ -220,7 +220,7 @@ class DinnerCheckOrderViewSet(ModelViewSet):
     permission_classes = [IsCompanyAuthenticated]
     serializer_class = DinnerSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    filter_class = OrderDateFilter
+    filter_class = UserOrderDateFilter
 
     def get_queryset(self):
         user_id = self.kwargs.get('user_id')
@@ -234,14 +234,8 @@ class DinnerCheckOrderViewSet(ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         serializer_data = super().list(request, *args, **kwargs).data
-        month_oversupply_tariff = 0
-        for oversupply_tariff in serializer_data:
-            month_oversupply_tariff += oversupply_tariff['oversupply_tariff']
-
-        serializer_data.append({'month_oversupply_tariff': month_oversupply_tariff})
-
-        custom_data = {'month_oversupply_tariff': month_oversupply_tariff, "data": serializer_data}
-
+        custom_data = check_oversupply_tariff(serializer_data=serializer_data, search_key='oversupply_tariff',
+                                              return_key='month_oversupply_tariff')
         return response.Response(custom_data)
 
 
@@ -259,7 +253,12 @@ class DinnerCheckOrderViewSet(ModelViewSet):
 @method_decorator(name='list', decorator=swagger_auto_schema(
     operation_summary='Просмотр историй заказов.',
     operation_description='''Есть возможность просмотра всех заказов компании, а также посмотреть детально \
-только один заказ, путем передачи order_id.''',
+только один заказ, путем передачи order_id.
+
+Можно использовать фильтры:
+create_date__gte - с какого числа
+create_date__lte - по какое число
+''',
     responses={
         '200': openapi.Response('Успешно', DinnerOrderSerializer),
         '400': 'Неверный формат запроса'
@@ -270,6 +269,8 @@ class CompanyOrderView(ModelViewSet):
     serializer_class = DinnerOrderSerializer
     permission_classes = [IsCompanyAuthenticated]
     pagination_class = pagination.LimitOffsetPagination
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    filter_class = CompanyOrderDateFilter
 
     def get_queryset(self):  # TODO: сделать отдельно админку и не городить все в один запрос, нарушает принцип SOLID
         is_superuser = self.request.user.is_superuser
@@ -287,3 +288,9 @@ class CompanyOrderView(ModelViewSet):
                 return CompanyOrder.objects.filter(id=order_id, company__id=company_id).order_by('-id')
 
             return CompanyOrder.objects.filter(company__id=company_id).order_by('-id')
+
+    def list(self, request, *args, **kwargs):
+        serializer_data = super().list(request, *args, **kwargs).data
+        custom_data = check_oversupply_tariff(serializer_data=serializer_data, search_key='dinners_oversupply_tariff',
+                                              return_key='full_oversupply_tariff')
+        return response.Response(custom_data)

@@ -16,7 +16,7 @@ class TariffSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tariff
-        fields = ['id', 'name', 'max_cost_day', 'description', 'is_blocked']
+        fields = ['id', 'name', 'company', 'max_cost_day', 'description', 'is_blocked']
 
 
 class GroupSerializer(serializers.ModelSerializer):
