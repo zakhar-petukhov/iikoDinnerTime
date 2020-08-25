@@ -33,14 +33,15 @@ class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomGroup
-        fields = ['id', 'tariff', 'name', 'count_person']
+        fields = ['id', 'tariff', 'name', 'count_person', 'company']
 
     def create(self, validated_data):
         auth_company = self.context['request'].auth.user.company_data
         user = [self.context['request'].auth.user]
 
         if not CustomGroup.objects.filter(user_group__in=user).exists():
-            admin_group = CustomGroup.objects.create(name='Администрация', company=auth_company)
+            tariff, _ = Tariff.objects.get_or_create(company=auth_company, name='Для администраторов', unlimited=True)
+            admin_group = CustomGroup.objects.create(name='Администрация', company=auth_company, tariff=tariff)
             admin_group.user_group.set(user)
 
         instance = CustomGroup.objects.create(company=auth_company, **validated_data)

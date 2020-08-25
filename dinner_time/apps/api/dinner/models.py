@@ -76,11 +76,12 @@ class Dinner(Model):
 
     @property
     def oversupply_tariff(self):
-        tariff = self.user.group.tariff.max_cost_day
-        oversupply_cost = tariff - self.full_cost
+        if not self.user.company_data:
+            tariff = self.user.group.tariff.max_cost_day
+            oversupply_cost = tariff - self.full_cost
 
-        if oversupply_cost < 0:
-            return abs(oversupply_cost)
+            if oversupply_cost < 0:
+                return abs(oversupply_cost)
 
         return 0
 
