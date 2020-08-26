@@ -193,6 +193,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.mailgun.org'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
+EMAIL_ADDRESS = 'Привет-Обед!  <postmaster@privet-obed.ru>'
 
 if os.environ.get('DJANGO_DEVELOPMENT') is not None:
     print('Start with DEV settings')

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<table style="width: 600px; border: 0; margin-top:0; margin-left: auto; margin-bottom: 0; margin-right: auto; background-color: #FFF7E6;">
+    <tr>
+        <td><img src="https://client.privet-obed.ru/img/head.jpg" alt="Привет, Обед!" style="width: 100%"></td>
+    </tr>
+    <tr>
+        <td style="padding-right: 30px; padding-left: 30px; padding-bottom: 210px;">
+            <p style="font-size: 16px; color: #1A1A1A;  font-family: Geneva, Arial, Helvetica, sans-serif;">
+                Поздравляем,</p>
+            <p style="font-size: 16px; color: #1A1A1A;  font-family: Geneva, Arial, Helvetica, sans-serif;">
+                {{ welcome_message }} <br>
+                Вам установлен базовый пароль, перейдите по ссылке для смены пароля</p>
+            <p style="font-size: 16px; color: #1A1A1A;  font-family: Geneva, Arial, Helvetica, sans-serif;"><a
+                    href="{{ registration_link }}" style="color: #435C88; text-decoration: none;">Установить
+                пароль</a></p>
+            <p style="font-size: 16px; color: #1A1A1A;  font-family: Geneva, Arial, Helvetica, sans-serif;">С уважением,
+                команда privet-obed.ru</p>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
