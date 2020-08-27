@@ -16,7 +16,7 @@ class UserOrderDateFilter(DateFilter):
     class Meta:
         model = Dinner
         fields = {
-            'date_action_begin': ('lte', 'gte')
+            'date_action_begin': ('gte', 'lte')
         }
 
 
@@ -24,5 +24,5 @@ class CompanyOrderDateFilter(DateFilter):
     class Meta:
         model = CompanyOrder
         fields = {
-            'create_date': ('lte', 'gte')
+            'create_date': ('gte', 'lte')
         }

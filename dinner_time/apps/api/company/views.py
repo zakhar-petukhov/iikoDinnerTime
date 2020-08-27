@@ -15,7 +15,7 @@ from rest_framework.viewsets import ModelViewSet
 from apps.api.company.data_for_swagger import *
 from apps.api.company.filters import UserOrderDateFilter, CompanyOrderDateFilter
 from apps.api.company.serializers import *
-from apps.api.company.utils import create_user_or_company, check_oversupply_tariff
+from apps.api.company.utils import create_user_or_company, check_oversupply_tariff, create_structure_by_dishes
 from apps.api.dinner.models import Dinner, CompanyOrder
 from apps.api.dinner.serializers import DinnerSerializer, DinnerOrderSerializer
 from apps.api.users.models import User
@@ -292,5 +292,35 @@ class CompanyOrderView(ModelViewSet):
     def list(self, request, *args, **kwargs):
         serializer_data = super().list(request, *args, **kwargs).data
         custom_data = check_oversupply_tariff(serializer_data=serializer_data, search_key='dinners_oversupply_tariff',
-                                              return_key='full_oversupply_tariff')
+                                              return_key='full_oversupply_tariff', for_admin=True)
+        return response.Response(custom_data)
+
+
+@method_decorator(name='get', decorator=swagger_auto_schema(
+    operation_summary='Просмотр всех блюд, которые нужно приготовить.',
+    operation_description='''
+Метод позволяет узнать, какие блюда надо приготовить на определенный день, в ответе приходит название блюд и их \
+количество
+
+Фильтры даты задается таким образом:
+date_action_begin__gte - указывается утреннее время (2020-08-29 06:00:00)
+date_action_begin__lte - указывается вечернее время (2020-08-29 20:00:00)
+''',
+    responses={
+        '200': openapi.Response('Успешно', DinnerSerializer),
+        '400': 'Неверный формат запроса'
+    }
+)
+                  )
+class CheckDishesView(ListAPIView):
+    queryset = Dinner.objects.all()
+    serializer_class = DinnerSerializer
+    permission_classes = [IsAdminUser]
+    filter_backends = [DjangoFilterBackend]
+    filter_class = UserOrderDateFilter
+
+    def get(self, request, *args, **kwargs):
+        serializer_data = super().list(request, *args, **kwargs).data
+        custom_data = create_structure_by_dishes(serializer_data=serializer_data)
+
         return response.Response(custom_data)
