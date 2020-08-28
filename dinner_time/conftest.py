@@ -25,34 +25,74 @@ def create_user(db, django_user_model):
 
 
 @pytest.fixture
+def get_token_user(db, create_user, create_group):
+    user = create_user(phone='89313147222', first_name='Тест', last_name="Тестовов",
+                       email='test@protonmail.com', username='test', password='test', is_superuser=True,
+                       is_staff=True, group=create_group)
+    token, _ = Token.objects.get_or_create(user=user)
+    return token, user
+
+
+@pytest.fixture
+def get_token_company(db, create_company):
+    company = create_company
+    token, _ = Token.objects.get_or_create(user=company)
+    return token, company
+
+
+@pytest.fixture
+def create_group(db, create_tariff):
+    data = {
+        "name": "Айтишники",
+        "tariff": create_tariff
+    }
+    group, _ = CustomGroup.objects.get_or_create(**data)
+
+    return group
+
+
+@pytest.fixture
+def create_tariff(db, get_token_company):
+    token, company = get_token_company
+
+    data = {
+        "name": "Лайт",
+        "max_cost_day": 300,
+        "company": company.company_data,
+        "description": "Тупа чтобы шашлыка навернуть"
+    }
+    tariff, _ = Tariff.objects.get_or_create(**data)
+
+    return tariff
+
+
+@pytest.fixture
 def create_company(db, django_user_model):
-    def make_company():
-        data = {
-            "company_data": {
-                "company_name": "ООО Тест",
-                "city": "Санкт-Петербург",
-                "street": "Пушкина",
-                "house": "3",
-                "house_building": "1",
-                "apartment": "120",
-                "registration_date": "2020-04-25"
-            },
-            "first_name": "Тест",
-            "last_name": "Тестов",
-            "middle_name": "Тестович",
-            "phone": "89313123442",
-            "email": "test_company@mail.ru",
-            "username": "test_company",
-            "password": 'test_company',
-        }
+    data = {
+        "company_data": {
+            "company_name": "ООО Тест",
+            "city": "Санкт-Петербург",
+            "street": "Пушкина",
+            "house": "3",
+            "house_building": "1",
+            "apartment": "120",
+            "registration_date": "2020-04-25"
+        },
+        "first_name": "Тест",
+        "last_name": "Тестов",
+        "middle_name": "Тестович",
+        "phone": "89313123442",
+        "email": "test_company@mail.ru",
+        "username": "test_company",
+        "password": 'test_company',
+    }
 
-        company_data = data['company_data']
-        company, _ = Company.objects.get_or_create(**company_data)
-        data['company_data'] = company
-        manager_with_company, _ = User.objects.get_or_create(**data)
-        return manager_with_company
+    company_data = data['company_data']
+    company, _ = Company.objects.get_or_create(**company_data)
+    data['company_data'] = company
+    manager_with_company, _ = User.objects.get_or_create(**data)
 
-    return make_company
+    return manager_with_company
 
 
 @pytest.fixture
@@ -139,33 +179,6 @@ def create_complex_dish(django_user_model, get_token_company, create_dish):
 
 
 @pytest.fixture
-def create_tariff(django_user_model):
-    def make_tariff():
-        data = {
-            "name": "Лайт",
-            "max_cost_day": 300,
-            "description": "Тупа чтобы шашлыка навернуть"
-        }
-
-        return Tariff.objects.create(**data)
-
-    return make_tariff
-
-
-@pytest.fixture
-def create_group(django_user_model, create_tariff):
-    def make_group():
-        data = {
-            "name": "Айтишники",
-            "tariff": create_tariff()
-        }
-
-        return CustomGroup.objects.create(**data)
-
-    return make_group
-
-
-@pytest.fixture
 def create_menu(django_user_model, get_token_company, create_dish):
     def make_menu():
         day_menu = DayMenu.objects.create()
@@ -174,22 +187,6 @@ def create_menu(django_user_model, get_token_company, create_dish):
         return day_menu
 
     return make_menu
-
-
-@pytest.fixture
-def get_token_user(db, create_user, create_company, create_group):
-    user = create_user(phone='89313147222', first_name='Тест', last_name="Тестовов",
-                       email='test@protonmail.com', username='test', password='test', is_superuser=True,
-                       is_staff=True, group=create_group())
-    token, _ = Token.objects.get_or_create(user=user)
-    return token, user
-
-
-@pytest.fixture
-def get_token_company(db, create_company):
-    company = create_company()
-    token, _ = Token.objects.get_or_create(user=company)
-    return token, company
 
 
 @pytest.fixture

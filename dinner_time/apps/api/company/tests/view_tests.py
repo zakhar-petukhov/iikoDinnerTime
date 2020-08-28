@@ -22,7 +22,7 @@ class TestCompanyView:
             "first_name": "Тест",
             "last_name": "Тестов",
             "middle_name": "Тестович",
-            "phone": "89313123442",
+            "phone": "89313123445",
             "email": "test_company@mail.ru"
         }
 
@@ -30,8 +30,7 @@ class TestCompanyView:
 
         assert response.status_code == 201
 
-    def test_list_all_company(self, api_client, get_token_user, create_company):
-        create_company()
+    def test_list_all_company(self, api_client, get_token_user):
         url = reverse('COMPANY:all_companies')
         token_user, user = get_token_user
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token_user.key)
@@ -44,7 +43,7 @@ class TestCompanyView:
         assert company_data[0]['first_name'] == "Тест"
 
     def test_list_detail_company(self, api_client, get_token_user, create_company):
-        company = create_company()
+        company = create_company
         url = reverse('COMPANY:detail_company', kwargs={'company_id': company.id})
         token_user, user = get_token_user
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token_user.key)
@@ -57,7 +56,7 @@ class TestCompanyView:
         assert company_data[0]['first_name'] == "Тест"
 
     def test_change_detail_company(self, api_client, get_token_user, create_company):
-        company = create_company()
+        company = create_company
         url = reverse('COMPANY:change_detail_company', kwargs={'company_id': company.id})
         token_user, user = get_token_user
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token_user.key)
