@@ -2,9 +2,9 @@ from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import status
+from rest_framework import status, response
 from rest_framework.generics import get_object_or_404
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
@@ -16,6 +16,7 @@ from apps.api.users.data_for_swagger import request_invite_users, request_for_ch
     request_for_create_tariff
 from apps.api.users.permissions import IsCompanyAuthenticated
 from apps.api.users.serializers import *
+from apps.api.users.structure import get_tariff_structure
 from apps.api.users.utils import *
 
 User = get_user_model()
@@ -41,7 +42,7 @@ User = get_user_model()
 )
                   )
 class UserView(ModelViewSet):
-    permission_classes = [IsCompanyAuthenticated, ]
+    permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
 
     def get_queryset(self):
@@ -71,7 +72,11 @@ class UserCreateDinnerView(ModelViewSet):
 
 
 @method_decorator(name='list', decorator=swagger_auto_schema(
-    operation_summary='Все доступные тарифы.',
+    operation_summary='Все доступные тарифы',
+    operation_description='''
+Если запрос делается от компании, то ей показываются только тарифы, которые привязаны за ней.
+Если запрос делает админ, то ему доступны все тарифы (сгруппированные по компаниям).
+''',
     responses={
         '200': openapi.Response('Успешно', TariffSerializer),
         '400': 'Неверный формат запроса'
@@ -79,7 +84,8 @@ class UserCreateDinnerView(ModelViewSet):
 )
                   )
 @method_decorator(name='update', decorator=swagger_auto_schema(
-    operation_summary='Изменение тарифа.',
+    operation_summary='Изменение тарифа',
+    operation_description='Изменить тариф может только админ',
     responses={
         '200': openapi.Response('Успешно.', TariffSerializer),
         '400': 'Неверный формат запроса'
@@ -87,7 +93,8 @@ class UserCreateDinnerView(ModelViewSet):
 )
                   )
 @method_decorator(name='create', decorator=swagger_auto_schema(
-    operation_summary='Создание тарифа.',
+    operation_summary='Создание тарифа',
+    operation_description='Создать тариф может только админ, желательно создавать сразу же после приглашении компании',
     responses={
         '201': openapi.Response('Создано', TariffSerializer),
         '400': 'Неверный формат запроса'
@@ -96,6 +103,7 @@ class UserCreateDinnerView(ModelViewSet):
                   )
 @method_decorator(name='destroy', decorator=swagger_auto_schema(
     operation_summary='Удаление тарифа.',
+    operation_description='Удалить тариф может только админ',
     responses={
         '204': openapi.Response('Не найдено', TariffSerializer),
         '400': 'Неверный формат запроса'
@@ -104,17 +112,35 @@ class UserCreateDinnerView(ModelViewSet):
                   )
 class TariffView(ModelViewSet):
     serializer_class = TariffSerializer
-    permission_classes = [IsCompanyAuthenticated]
+    permission_classes_by_action = {
+        'create': [IsAdminUser],
+        'update': [IsAdminUser],
+        'destroy': [IsAdminUser],
+        'list': [IsCompanyAuthenticated]
+    }
 
     def get_queryset(self):
         user = self.request.user
-        is_admin = self.request.user.is_superuser
+        is_admin = user.is_superuser
 
         if not is_admin:
-            company = user.company_data
-            return Tariff.objects.filter(company=company)
+            return Tariff.objects.filter(company=user.company_data)
 
         return Tariff.objects.all()
+
+    def get_permissions(self):
+        try:
+            # return permission_classes depending on `action`
+            return [permission() for permission in self.permission_classes_by_action[self.action]]
+        except KeyError:
+            # action is not set return default permission_classes
+            return [permission() for permission in self.permission_classes]
+
+    def list(self, request, *args, **kwargs):
+        serializer_data = super().list(request, *args, **kwargs).data
+        custom_data = get_tariff_structure(serializer_data=serializer_data)
+
+        return response.Response(custom_data)
 
 
 @method_decorator(name='list', decorator=swagger_auto_schema(
