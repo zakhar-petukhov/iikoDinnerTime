@@ -26,30 +26,23 @@ def create_companies_structure(dinner_data):
 
     structure = list()
 
-    company_structure = {
-        'company': None,
-        'company_department': list()
-    }
-
-    department_structure = {
-        "department_name": None,
-        "information": None,
-    }
-
     dinners_data = dinner_data['data']
     full_oversupply_tariff = dinner_data.get('full_oversupply_tariff')
 
     for data in dinners_data:
-        company_structure['company'] = data['company']
-        group = dict()
+        company_structure = {'company': data['company'], 'company_department': list()}
+
+        department_structure = {"department_name": None, "information": None}
+
+        department_information = dict()
 
         for information in data['dinners']:
             department_name = information['user']['group']['name']
 
-            if not group.get(department_name):
-                group[department_name] = list()
+            if not department_information.get(department_name):
+                department_information[department_name] = list()
 
-            group.get(department_name).append({
+            department_information.get(department_name).append({
                 "person": {
                     "id": information['user']['id'],
                     "first_name": information['user']['first_name'],
@@ -75,9 +68,9 @@ def create_companies_structure(dinner_data):
                 "send_iiko": data['send_iiko'],
             })
 
-        for key, value in group.items():
-            department_structure['department_name'] = key
-            department_structure['information'] = value
+        for name, information in department_information.items():
+            department_structure['department_name'] = name
+            department_structure['information'] = information
 
             company_structure['company_department'].append(department_structure)
 
