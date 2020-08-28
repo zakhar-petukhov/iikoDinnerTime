@@ -15,7 +15,8 @@ from rest_framework.viewsets import ModelViewSet
 from apps.api.company.data_for_swagger import *
 from apps.api.company.filters import UserOrderDateFilter, CompanyOrderDateFilter
 from apps.api.company.serializers import *
-from apps.api.company.utils import create_user_or_company, check_oversupply_tariff, create_structure_by_dishes
+from apps.api.company.structure import check_oversupply_tariff, create_structure_by_dishes
+from apps.api.company.utils import create_user_or_company
 from apps.api.dinner.models import Dinner, CompanyOrder
 from apps.api.dinner.serializers import DinnerSerializer, DinnerOrderSerializer
 from apps.api.users.models import User
@@ -235,7 +236,7 @@ class DinnerCheckOrderViewSet(ModelViewSet):
     def list(self, request, *args, **kwargs):
         serializer_data = super().list(request, *args, **kwargs).data
         custom_data = check_oversupply_tariff(serializer_data=serializer_data, search_key='oversupply_tariff',
-                                              return_key='month_oversupply_tariff')
+                                              return_key='month_oversupply_tariff', query_params=True)
         return response.Response(custom_data)
 
 
@@ -271,6 +272,7 @@ class CompanyOrderView(ModelViewSet):
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     filter_class = CompanyOrderDateFilter
+    search_fields = ['company__company_data__company_name']
 
     def get_queryset(self):  # TODO: сделать отдельно админку и не городить все в один запрос, нарушает принцип SOLID
         is_superuser = self.request.user.is_superuser
@@ -291,8 +293,11 @@ class CompanyOrderView(ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         serializer_data = super().list(request, *args, **kwargs).data
+        query_params = self.request.query_params
+
         custom_data = check_oversupply_tariff(serializer_data=serializer_data, search_key='dinners_oversupply_tariff',
-                                              return_key='full_oversupply_tariff', for_admin=True)
+                                              return_key='full_oversupply_tariff', for_admin=True,
+                                              query_params=query_params)
         return response.Response(custom_data)
 
 
