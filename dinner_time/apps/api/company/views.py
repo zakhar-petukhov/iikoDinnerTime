@@ -2,14 +2,18 @@ from datetime import datetime
 
 import pytz
 from django.conf import settings
+from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django_filters.rest_framework import DjangoFilterBackend
+from docxtpl import DocxTemplate
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters, pagination
 from rest_framework import response
+from rest_framework import status
 from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView, get_object_or_404
 from rest_framework.permissions import IsAdminUser
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from apps.api.company.data_for_swagger import *
@@ -329,3 +333,61 @@ class CheckDishesView(ListAPIView):
         custom_data = create_structure_by_dishes(serializer_data=serializer_data)
 
         return response.Response(custom_data)
+
+
+@method_decorator(name='post', decorator=swagger_auto_schema(
+    operation_summary='Запрос на получение docx файла',
+    operation_description='''
+Метод позволяет распечатать сводную таблицу либо заказы компании.
+
+1) Для сводной таблицы, берем данные из запроса "/company/history/check/dishes/", строим словарь, где важный параметр \
+будет "template_summary_table": true, "date_action_begin" дата готовки блюд, а в "data" ответ из запроса
+Пример:
+{
+    "template_summary_table": true,
+    "date_action_begin": 2020-08-20,
+    "data": [...]
+}
+
+2) Для заказа от компании, берем данные из запроса "/company/history/order/", строим словарь, где ключом будет
+"template_order": true, а в "data" ответ из запроса --> ps: в этом запросе может быть много компаний, так что \
+внимательнее
+Пример:
+{
+    "template_order": true,
+    "data": [...]
+}
+''',
+    responses={
+        '200': openapi.Response('Успешно', DinnerSerializer),
+        '400': 'Неверный формат запроса'
+    }
+)
+                  )
+class GenerateOrderView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def post(self, request):
+        try:
+            data = request.data
+            doc = None
+
+            if data.get('template_summary_table'):
+                doc = DocxTemplate('apps/api/company/templates/docx_template/template_summary_table.docx')
+
+            elif data.get('template_order'):
+                doc = DocxTemplate('a¬pps/api/company/templates/docx_template/template_order.docx')
+
+            doc.render(context=data['data'])
+
+            res = HttpResponse(
+                content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            )
+
+            res['Content-Disposition'] = 'attachment; filename=dkp.docx'
+
+            doc.save(res)
+
+            return res
+        except Exception as e:
+            return response.Response(data=e, status=status.HTTP_400_BAD_REQUEST)

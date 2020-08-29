@@ -30,6 +30,8 @@ urlpatterns = [
     path('history/check/dishes/', CheckDishesView.as_view(), name='company_history_check_dishes/'),
     path('history/order/', CompanyOrderView.as_view({'get': 'list'}), name='company_history_order'),
     path('history/order/detail/<order_id>', CompanyOrderView.as_view({'get': 'list'}),
-         name='company_history_order_detail')
+         name='company_history_order_detail'),
+
+    path('generate/order/file', GenerateOrderView.as_view(), name='generate_order_file')
 
 ]

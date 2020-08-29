@@ -1,3 +1,6 @@
+import datetime
+
+
 # TODO: соединить две функции "check_oversupply_tariff" и "create_companies_structure" вместе, чтобы упростить сложность
 def check_oversupply_tariff(serializer_data, search_key, return_key, for_admin=False, query_params=False):
     # Function to calculate the monthly exceedance of the limit for the employees of the company, as well
@@ -30,11 +33,13 @@ def create_companies_structure(dinner_data):
     full_oversupply_tariff = dinner_data.get('full_oversupply_tariff')
 
     for data in dinners_data:
-        company_structure = {'company': data['company'], 'company_department': list()}
+        company_structure = {'order_number': data['id'], 'company': data['company'], 'company_department': list()}
 
         department_structure = {"department_name": None, "information": None}
 
         department_information = dict()
+
+        date_action_begin = None
 
         for information in data['dinners']:
             department_name = information['user']['group']['name']
@@ -62,11 +67,10 @@ def create_companies_structure(dinner_data):
                     "full_cost": information['full_cost'],
                     "oversupply_tariff": information['oversupply_tariff'],
                 },
-
-                "full_cost": data['full_cost'],
                 "dinners_oversupply_tariff": data.get('dinners_oversupply_tariff'),
-                "send_iiko": data['send_iiko'],
             })
+
+            date_action_begin = information['date_action_begin']
 
         for name, information in department_information.items():
             department_structure['department_name'] = name
@@ -75,6 +79,11 @@ def create_companies_structure(dinner_data):
             company_structure['company_department'].append(department_structure)
 
         company_structure['full_oversupply_tariff'] = full_oversupply_tariff
+        company_structure['full_cost'] = data['full_cost']
+        company_structure['send_iiko'] = data['send_iiko']
+        company_structure['date_action_begin'] = datetime.datetime.strptime(date_action_begin[:-6],
+                                                                            '%Y-%m-%dT%H:%M:%S').strftime(
+            "%Y-%m-%d %H:%M")
 
         structure.append(company_structure)
 
@@ -85,9 +94,10 @@ def create_structure_by_dishes(serializer_data):
     # Function to create the structure of dishes, we get the name of the dishes and their quantity
 
     structure = list()
-    full_dishes = dict()
 
     for dinner in serializer_data:
+        full_dishes = dict()
+
         for dishes in dinner['dinner_to_dish']:
             dish_name = dishes['dish']['name']
             dish_count = dishes['count_dish']

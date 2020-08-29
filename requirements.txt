@@ -30,3 +30,4 @@ paramiko==2.7.1
 schedule==0.6.0
 pytest-env==0.6.2
 sentry-sdk==0.16.2
+docxtpl==0.10.0
