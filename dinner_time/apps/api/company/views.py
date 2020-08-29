@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 import pytz
@@ -369,14 +370,15 @@ class GenerateOrderView(APIView):
 
     def post(self, request):
         try:
+            file_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             data = request.data
             doc = None
 
             if data.get('template_summary_table'):
-                doc = DocxTemplate('apps/api/company/templates/docx_template/template_summary_table.docx')
+                doc = DocxTemplate(f'{file_dir}/company/templates/docx_template/template_summary_table.docx')
 
             elif data.get('template_order'):
-                doc = DocxTemplate('a¬pps/api/company/templates/docx_template/template_order.docx')
+                doc = DocxTemplate(f'{file_dir}/company/templates/docx_template/template_order.docx')
 
             doc.render(context=data['data'])
 
