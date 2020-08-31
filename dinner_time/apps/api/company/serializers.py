@@ -2,8 +2,8 @@ from phonenumber_field.phonenumber import PhoneNumber
 from rest_framework import serializers
 
 from apps.api.company.models import Department, Company
-from apps.api.users.models import User
-from apps.api.users.serializers import UserSerializer
+from apps.api.users.models import User, Tariff
+from apps.api.users.serializers import UserSerializer, TariffSerializer
 
 
 class CompanyDetailSerializer(serializers.ModelSerializer):
@@ -48,6 +48,7 @@ class CompanyGetSerializer(serializers.ModelSerializer):
     all_person = serializers.SerializerMethodField('get_all_person', label='Все сотрудники')
     count_person = serializers.SerializerMethodField('get_count_person', label='Количество сотрудников')
     department = serializers.SerializerMethodField('get_all_department', label='Все отделы')
+    all_tariff = serializers.SerializerMethodField('get_all_tariff', label='Все тарифы')
     company_data = CompanyDetailSerializer(required=False)
 
     def get_count_person(self, obj):
@@ -63,10 +64,15 @@ class CompanyGetSerializer(serializers.ModelSerializer):
         serializer = DepartmentSerializer(instance=qs, many=True)
         return serializer.data
 
+    def get_all_tariff(self, obj):
+        qs = Tariff.objects.filter(company_id=obj.company_data.id)
+        serializer = TariffSerializer(instance=qs, many=True)
+        return serializer.data
+
     class Meta:
         model = User
         fields = ['id', 'company_data', 'first_name', 'last_name', 'middle_name', 'phone', 'email', 'is_blocked',
-                  'count_person', 'all_person', 'department', 'is_active']
+                  'count_person', 'all_person', 'department', 'all_tariff', 'is_active']
 
 
 class CompanyCreateSerializer(serializers.ModelSerializer):

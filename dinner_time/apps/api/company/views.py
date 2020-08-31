@@ -298,7 +298,7 @@ class CompanyOrderView(ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         serializer_data = super().list(request, *args, **kwargs).data
-        query_params = self.request.query_params
+        query_params = self.request.query_params.get('search')
 
         custom_data = check_oversupply_tariff(serializer_data=serializer_data, search_key='dinners_oversupply_tariff',
                                               return_key='full_oversupply_tariff', for_admin=True,

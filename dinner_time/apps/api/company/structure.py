@@ -66,8 +66,7 @@ def create_companies_structure(dinner_data):
                     "status_name": information['status_name'],
                     "full_cost": information['full_cost'],
                     "oversupply_tariff": information['oversupply_tariff'],
-                },
-                "dinners_oversupply_tariff": data.get('dinners_oversupply_tariff'),
+                }
             })
 
             date_action_begin = information['date_action_begin']
@@ -78,6 +77,7 @@ def create_companies_structure(dinner_data):
 
             company_structure['company_department'].append(department_structure)
 
+        company_structure["dinners_oversupply_tariff"] = data['dinners_oversupply_tariff']
         company_structure['full_oversupply_tariff'] = full_oversupply_tariff
         company_structure['full_cost'] = data['full_cost']
         company_structure['send_iiko'] = data['send_iiko']
