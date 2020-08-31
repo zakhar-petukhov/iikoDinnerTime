@@ -61,7 +61,7 @@ class TestUserView:
         user_data = json.loads(response.content)
 
         assert response.status_code == 200
-        assert user_data['ООО Тест'][0]['name'] == "Лайт"
+        assert user_data[0]['company_information'][0]['name'] == "Лайт"
 
     def test_change_data_with_referral_upid(self, api_client, create_referral_upid):
         url = reverse('USERS:user_change_auth_ref', kwargs={"referral_upid": create_referral_upid()})
