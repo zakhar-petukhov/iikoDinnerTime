@@ -70,5 +70,6 @@ class Image(Model):
             return '(Нет изображения)'
 
     class Meta:
+        ordering = ['-id']
         verbose_name = 'Фотографии'
         verbose_name_plural = 'Фотографии'
