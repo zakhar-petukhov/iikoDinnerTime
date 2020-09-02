@@ -24,12 +24,14 @@ def create_companies_structure(dinner_data):
     # We create our own structures, to be issued to the front.
     # Sort people by working groups and tie the lunches to them.
 
-    structure = list()
+    structure = None
 
     dinners_data = dinner_data['data']
     full_oversupply_tariff = dinner_data.get('full_oversupply_tariff')
 
     for data in dinners_data:
+        structure = list()
+
         company_structure = {'order_number': data['id'], 'company': data['company'], 'company_department': list()}
         date_action_begin = None
 
