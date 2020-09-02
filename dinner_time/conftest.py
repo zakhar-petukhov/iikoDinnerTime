@@ -196,7 +196,7 @@ def create_company_order(db, get_token_company, get_token_user, create_dish):
         token, user = get_token_user
         dish = create_dish()
         dinner = Dinner.objects.create(user=user, company=company.company_data, status=status,
-                                       date_action_begin='2020-08-31 06:00:00')
+                                       date_action_begin='2020-08-31')
         DinnerDish.objects.create(dish=dish, dinner=dinner, count_dish=3)
         company_order = CompanyOrder.objects.create(company=company)
         company_order.dinners.add(dinner)

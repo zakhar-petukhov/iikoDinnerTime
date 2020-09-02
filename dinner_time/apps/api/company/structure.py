@@ -1,6 +1,3 @@
-import datetime
-
-
 # TODO: соединить две функции "check_oversupply_tariff" и "create_companies_structure" вместе, чтобы упростить сложность
 def check_oversupply_tariff(serializer_data, search_key, return_key, for_admin=False, query_params=False):
     # Function to calculate the monthly exceedance of the limit for the employees of the company, as well
@@ -34,14 +31,11 @@ def create_companies_structure(dinner_data):
 
     for data in dinners_data:
         company_structure = {'order_number': data['id'], 'company': data['company'], 'company_department': list()}
-
-        department_structure = {"department_name": None, "information": None}
-
-        department_information = dict()
-
         date_action_begin = None
 
         for information in data['dinners']:
+            department_structure = {"department_name": None, "information": None}
+            department_information = dict()
             department_name = information['user']['group']['name']
 
             if not department_information.get(department_name):
@@ -71,19 +65,17 @@ def create_companies_structure(dinner_data):
 
             date_action_begin = information['date_action_begin']
 
-        for name, information in department_information.items():
-            department_structure['department_name'] = name
-            department_structure['information'] = information
+            for name, information in department_information.items():
+                department_structure['department_name'] = name
+                department_structure['information'] = information
 
-            company_structure['company_department'].append(department_structure)
+                company_structure['company_department'].append(department_structure)
 
         company_structure["dinners_oversupply_tariff"] = data['dinners_oversupply_tariff']
         company_structure['full_oversupply_tariff'] = full_oversupply_tariff
         company_structure['full_cost'] = data['full_cost']
         company_structure['send_iiko'] = data['send_iiko']
-        company_structure['date_action_begin'] = datetime.datetime.strptime(date_action_begin[:-6],
-                                                                            '%Y-%m-%dT%H:%M:%S').strftime(
-            "%Y-%m-%d %H:%M")
+        company_structure['date_action_begin'] = date_action_begin
 
         structure.append(company_structure)
 
