@@ -84,6 +84,7 @@ def create_companies_structure(dinner_data):
     return structure
 
 
+# TODO: переписать логику на уровне бд, очень ресурсно затраный запрос получился
 def create_structure_by_dishes(serializer_data):
     # Function to create the structure of dishes, we get the name of the dishes and their quantity
 
@@ -95,16 +96,46 @@ def create_structure_by_dishes(serializer_data):
         for dishes in dinner['dinner_to_dish']:
             dish_name = dishes['dish']['name']
             dish_count = dishes['count_dish']
+            category_dish = dishes['dish']['category_dish']['name']
 
             if not full_dishes.get(dish_name):
                 full_dishes.update({
-                    dish_name: dish_count
+                    dish_name: {"count_dish": dish_count, "category_dish": category_dish}
                 })
 
             else:
-                full_dishes[dish_name] += dish_count
+                full_dishes[dish_name]["count_dish"] += dish_count
 
-        for dish_name, count_dish in full_dishes.items():
-            structure.append({"dish_name": dish_name, "count_dish": count_dish})
+        for dish_name, information in full_dishes.items():
+            structure.append({
+                "dish_name": dish_name, "count_dish": information['count_dish'],
+                "category_name": information['category_dish']
+            })
 
-    return structure
+    structure_category = list()
+    category = dict()
+
+    for information in structure:
+        category_name = information['category_name']
+
+        if category.get('category_name') is not None and category.get('category_name') != category_name:
+            for category_dict in structure_category:
+                if category_dict.get('category_name') == category_name:
+                    category_dict.get('data').append(
+                        {"count_dish": information['count_dish'], "dish_name": information['dish_name']})
+
+            structure_category.append(category)
+
+            category = dict()
+
+            category['category_name'] = category_name
+            category['data'] = [{"count_dish": information['count_dish'], "dish_name": information['dish_name']}]
+
+        elif category.get('category_name') != category_name:
+            category['category_name'] = category_name
+            category['data'] = [{"count_dish": information['count_dish'], "dish_name": information['dish_name']}]
+
+        else:
+            category['data'].append({"count_dish": information['count_dish'], "dish_name": information['dish_name']})
+
+    return structure_category
