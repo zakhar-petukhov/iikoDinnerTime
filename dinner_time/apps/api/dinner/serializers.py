@@ -36,7 +36,7 @@ class DishSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dish
         fields = ('id', 'name', 'cost', 'added_dish', 'weight', 'description',
-                  'category_dish', 'is_active', 'for_complex', 'image_dish')
+                  'category_dish', 'is_active', 'for_complex', 'is_complex', 'image_dish')
 
     def update(self, instance, validated_data):
         category_dish_validated_data = self.validated_data.get('category_dish')
