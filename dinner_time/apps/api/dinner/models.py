@@ -124,6 +124,7 @@ class Dish(Model):
     is_active = BooleanField(default=True, verbose_name='Статус активности')
     for_complex = BooleanField(default=False, verbose_name='Для комплексного обеда')
     is_complex = BooleanField(default=False, verbose_name='Комплексный обед')
+    for_added_dish = BooleanField(default=False, verbose_name='Добавчное блюдо к главному')
 
     def __str__(self):
         return self.name

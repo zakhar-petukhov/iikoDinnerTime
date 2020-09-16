@@ -150,7 +150,7 @@ class MenuViewSet(ModelViewSet):
         close_menu = query_params['close_menu']
 
         if day_id and category_id:
-            category_dish = Dish.objects.filter(category_dish=category_id)
+            category_dish = Dish.objects.filter(category_dish=category_id, is_active=True, for_added_dish=False)
             day_menu = DayMenu.objects.filter(
                 number_day=day_id,
                 week_dishes__start_menu__gte=start_menu, week_dishes__close_menu__lte=close_menu).prefetch_related(
