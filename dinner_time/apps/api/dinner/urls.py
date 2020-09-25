@@ -28,8 +28,8 @@ urlpatterns = [
          name='change_dish_category'),
 
     path('delete_menu/<menu_id>/', MenuViewSet.as_view({'delete': 'destroy'}), name='delete_menu'),
-    path('delete_dish/<dish_id>', DishViewSet.as_view({'delete': 'destroy'}), name='delete_dish'),
-    path('delete_dish_category/<dish_category_id>', DishCategoryViewSet.as_view({'delete': 'destroy'}),
+    path('delete_dish/<dish_id>/', DishViewSet.as_view({'delete': 'destroy'}), name='delete_dish'),
+    path('delete_dish_category/<dish_category_id>/', DishCategoryViewSet.as_view({'delete': 'destroy'}),
          name='delete_dish_category'),
 
     *router.urls
