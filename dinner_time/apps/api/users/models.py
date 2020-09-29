@@ -16,6 +16,9 @@ class CustomGroup(Model):
     company = ForeignKey('company.Company', on_delete=PROTECT, related_name='groups_company', blank=True,
                          null=True, verbose_name='Компания')
 
+    address_for_delivery = ForeignKey('company.Address', on_delete=PROTECT, related_name='group_delivery_address',
+                                      blank=True, null=True, verbose_name='Адрес доставки')
+
     class Meta:
         verbose_name = 'Группы пользователей'
         verbose_name_plural = 'Группы пользователей'
