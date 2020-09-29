@@ -213,8 +213,7 @@ class DepartmentCreateUserViewSet(ModelViewSet):
     operation_description='''
 При передаче user_id сотрудника покажется заказы только этого сотрудника.
 Можно использовать фильтры:
-date_action_begin__gte - с какого числа
-date_action_begin__lte - по какое число 
+date_action_begin: 2020-09-20
 ''',
     responses={
         '200': openapi.Response('Успешно', DinnerSerializer),
@@ -262,8 +261,7 @@ class DinnerCheckOrderViewSet(ModelViewSet):
 только один заказ, путем передачи order_id.
 
 Можно использовать фильтры:
-create_date__gte - с какого числа
-create_date__lte - по какое число
+dinners__date_action_begin: 2020-09-20
 ''',
     responses={
         '200': openapi.Response('Успешно', DinnerOrderSerializer),
@@ -313,8 +311,7 @@ class CompanyOrderView(ModelViewSet):
 количество
 
 Фильтры даты задается таким образом:
-date_action_begin__gte - указывается утреннее время (2020-08-29 06:00:00)
-date_action_begin__lte - указывается вечернее время (2020-08-29 20:00:00)
+date_action_begin: 2020-08-29
 ''',
     responses={
         '200': openapi.Response('Успешно', DinnerSerializer),
@@ -334,6 +331,47 @@ class CheckDishesView(ListAPIView):
         custom_data = create_structure_by_dishes(serializer_data=serializer_data)
 
         return response.Response(custom_data)
+
+
+@method_decorator(name='list', decorator=swagger_auto_schema(
+    operation_summary='Просмотр всех адресов компании.',
+    responses={
+        '200': openapi.Response('Успешно', AddressesSerializer),
+        '400': 'Неверный формат запроса'
+    }
+)
+                  )
+@method_decorator(name='update', decorator=swagger_auto_schema(
+    operation_summary='Изменение адреса компании.',
+    responses={
+        '200': openapi.Response('Успешно.', AddressesSerializer),
+        '400': 'Неверный формат запроса'
+    }
+)
+                  )
+@method_decorator(name='create', decorator=swagger_auto_schema(
+    operation_summary='Создание адреса компании.',
+    operation_description='ps: передавать id компании не надо, вытаскиваем по токену',
+    responses={
+        '201': openapi.Response('Создано', AddressesSerializer),
+        '400': 'Неверный формат запроса'
+    }
+)
+                  )
+@method_decorator(name='destroy', decorator=swagger_auto_schema(
+    operation_summary='Удаление адреса компании.',
+    responses={
+        '204': openapi.Response('Не найдено', AddressesSerializer),
+        '400': 'Неверный формат запроса'
+    }
+)
+                  )
+class AddressesView(ModelViewSet):
+    serializer_class = AddressesSerializer
+    permission_classes = [IsCompanyAuthenticated]
+
+    def get_queryset(self):
+        return Address.objects.filter(company=self.request.auth.user.company_data)
 
 
 @method_decorator(name='post', decorator=swagger_auto_schema(

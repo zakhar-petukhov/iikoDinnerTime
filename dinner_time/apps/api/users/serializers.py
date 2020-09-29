@@ -3,6 +3,7 @@ from phonenumber_field.phonenumber import PhoneNumber
 from rest_framework import serializers
 
 from apps.api.common.serializers import ImagesSerializer
+from apps.api.company.serializers import AddressesSerializer
 from apps.api.users.models import Tariff, CustomGroup
 
 User = get_user_model()
@@ -19,13 +20,7 @@ class TariffSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'company', 'max_cost_day', 'description', 'is_blocked']
 
 
-class GroupSerializer(serializers.ModelSerializer):
-    """
-    Serializer for for working with group
-    """
-
-    tariff = TariffSerializer(required=False)
-
+class MainGroupSerializer(serializers.ModelSerializer):
     count_person = serializers.SerializerMethodField('get_count_person', label='Количество сотрудников')
 
     def get_count_person(self, obj):
@@ -33,7 +28,7 @@ class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomGroup
-        fields = ['id', 'tariff', 'name', 'count_person', 'company']
+        fields = ['id', 'tariff', 'name', 'count_person', 'company', 'address_for_delivery']
 
     def create(self, validated_data):
         auth_company = self.context['request'].auth.user.company_data
@@ -46,6 +41,11 @@ class GroupSerializer(serializers.ModelSerializer):
 
         instance = CustomGroup.objects.create(company=auth_company, **validated_data)
         return instance
+
+
+class GroupSerializer(MainGroupSerializer):
+    tariff = TariffSerializer()
+    address_for_delivery = AddressesSerializer()
 
 
 class UserCreateSerializer(serializers.ModelSerializer):

@@ -1,9 +1,8 @@
 from phonenumber_field.phonenumber import PhoneNumber
 from rest_framework import serializers
 
-from apps.api.company.models import Department, Company
-from apps.api.users.models import User, Tariff
-from apps.api.users.serializers import UserSerializer, TariffSerializer
+from apps.api.company.models import Company, Address, Department
+from apps.api.users.models import User, Tariff, CustomGroup
 
 
 class CompanyDetailSerializer(serializers.ModelSerializer):
@@ -19,6 +18,23 @@ class CompanyDetailSerializer(serializers.ModelSerializer):
             'general_director')
 
 
+class AddressesSerializer(serializers.ModelSerializer):
+    """
+    A serializer for company addresses
+    """
+
+    class Meta:
+        model = Address
+        fields = ['id', 'company', 'city', 'street', 'house', 'house_building', 'apartment', 'full_address']
+
+    def create(self, validated_data):
+        auth_company = self.context['request'].auth.user.company_data
+        instance = Address.objects.create(company=auth_company, **validated_data)
+
+        return instance
+
+
+# TODO: УДАЛИТЬ
 class DepartmentSerializer(serializers.ModelSerializer):
     """
     Serializer for department. Used how main serializer and for create department.
@@ -28,6 +44,8 @@ class DepartmentSerializer(serializers.ModelSerializer):
     users = serializers.SerializerMethodField('get_users')
 
     def get_users(self, obj):
+        from apps.api.users.serializers import UserSerializer
+
         users = UserSerializer(data=User.objects.filter(department=obj.id), many=True)
         users.is_valid()
         return users.data
@@ -44,6 +62,7 @@ class CompanyGetSerializer(serializers.ModelSerializer):
     """
     A serializer for get all company
     """
+    from apps.api.users.serializers import UserSerializer, TariffSerializer, GroupSerializer
 
     all_person = serializers.SerializerMethodField('get_all_person', label='Все сотрудники')
     count_person = serializers.SerializerMethodField('get_count_person', label='Количество сотрудников')
@@ -56,17 +75,17 @@ class CompanyGetSerializer(serializers.ModelSerializer):
 
     def get_all_person(self, obj):
         qs = User.objects.filter(parent=obj.id)
-        serializer = UserSerializer(instance=qs, many=True)
+        serializer = self.UserSerializer(instance=qs, many=True)
         return serializer.data
 
     def get_all_department(self, obj):
-        qs = Department.objects.filter(company_id=obj.company_data.id)
-        serializer = DepartmentSerializer(instance=qs, many=True)
+        qs = CustomGroup.objects.filter(company_id=obj.company_data.id)
+        serializer = self.GroupSerializer(instance=qs, many=True)
         return serializer.data
 
     def get_all_tariff(self, obj):
         qs = Tariff.objects.filter(company_id=obj.company_data.id)
-        serializer = TariffSerializer(instance=qs, many=True)
+        serializer = self.TariffSerializer(instance=qs, many=True)
         return serializer.data
 
     class Meta:

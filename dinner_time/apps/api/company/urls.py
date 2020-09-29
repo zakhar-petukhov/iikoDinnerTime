@@ -1,9 +1,13 @@
 from django.urls import path
+from rest_framework import routers
 
 from apps.api.authentication.views import UserChangeRegAuthDataView
 from apps.api.company.views import *
 
 app_name = "COMPANY"
+
+router = routers.DefaultRouter()
+router.register(r'addresses', AddressesView, base_name='addresses')
 
 urlpatterns = [
     path('create/', CreateCompanyView.as_view(), name='create_company'),
@@ -14,9 +18,11 @@ urlpatterns = [
     path('delete/<company_id>/', CompanyChangeDetailView.as_view(), name='delete_company'),
     path('ref/<str:referral_upid>/change_auth/', UserChangeRegAuthDataView.as_view(), name='company_change_auth_ref'),
 
+    # TODO: удалить
     path('department/create_department/', DepartmentViewSet.as_view({'post': 'create'}), name='department_create'),
     path('department/list/', DepartmentViewSet.as_view({'get': 'list'}), name='department_list'),
     path('department/detail/<department_id>/', DepartmentViewSet.as_view({'get': 'list'}), name='department_detail'),
+
     path('department/add_user/', DepartmentCreateUserViewSet.as_view({'post': 'create'}),
          name='department_add_user'),
 
@@ -32,6 +38,7 @@ urlpatterns = [
     path('history/order/detail/<order_id>/', CompanyOrderView.as_view({'get': 'list'}),
          name='company_history_order_detail'),
 
-    path('generate/order/file/', GenerateOrderView.as_view(), name='generate_order_file')
+    path('generate/order/file/', GenerateOrderView.as_view(), name='generate_order_file'),
 
+    *router.urls
 ]

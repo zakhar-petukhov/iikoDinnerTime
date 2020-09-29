@@ -12,8 +12,7 @@ from apps.api.company.utils import send_message
 from apps.api.dinner.data_for_swagger import request_for_create_dinner
 from apps.api.dinner.models import Dinner
 from apps.api.dinner.serializers import DinnerSerializer
-from apps.api.users.data_for_swagger import request_invite_users, request_for_change_user_information, \
-    request_for_create_tariff
+from apps.api.users.data_for_swagger import request_invite_users, request_for_change_user_information
 from apps.api.users.permissions import IsCompanyAuthenticated
 from apps.api.users.serializers import *
 from apps.api.users.structure import get_tariff_structure
@@ -161,7 +160,7 @@ class TariffView(ModelViewSet):
                   )
 @method_decorator(name='create', decorator=swagger_auto_schema(
     operation_summary='Создание группы.',
-    request_body=request_for_create_tariff,
+    request_body=MainGroupSerializer,
     responses={
         '201': openapi.Response('Создано', GroupSerializer),
         '400': 'Неверный формат запроса'
@@ -177,11 +176,16 @@ class TariffView(ModelViewSet):
 )
                   )
 class GroupView(ModelViewSet):
-    serializer_class = GroupSerializer
     permission_classes = [IsCompanyAuthenticated]
 
     def get_queryset(self):
         return CustomGroup.objects.filter(company=self.request.auth.user.company_data)
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return MainGroupSerializer
+        else:
+            return GroupSerializer
 
 
 @method_decorator(name='post', decorator=swagger_auto_schema(
