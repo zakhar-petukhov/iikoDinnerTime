@@ -132,43 +132,6 @@ class CompanyChangeDetailView(UpdateAPIView):
 
 
 @method_decorator(name='create', decorator=swagger_auto_schema(
-    operation_summary='Создание отдела',
-    operation_description='''
-В поле "company" передаем "id" компании, к которой привязываем этот отдел.
-''',
-    responses={
-        '201': openapi.Response('Создано', DepartmentSerializer),
-        '400': 'Неверный формат запроса'
-    }
-)
-                  )
-@method_decorator(name='list', decorator=swagger_auto_schema(
-    operation_summary='Просмотр отделов.',
-    operation_description='''
-Если передаем "department_id" в заголовке, то нам доступен только один отдел и его сотрудники, если не передаем, \
-то получаем все отделы.
-''',
-    responses={
-        '200': openapi.Response('Успешно', DepartmentSerializer),
-        '400': 'Неверный формат запроса'
-    }
-)
-                  )
-class DepartmentViewSet(ModelViewSet):
-    permission_classes = [IsCompanyAuthenticated]
-    serializer_class = DepartmentSerializer
-
-    def get_queryset(self):
-        department_id = self.kwargs.get('department_id', None)
-        employee_id = self.request.user.id
-
-        if department_id:
-            return Department.objects.filter(id=department_id)
-
-        return Department.objects.filter(company_id__company_user=User.objects.get(id=employee_id))
-
-
-@method_decorator(name='create', decorator=swagger_auto_schema(
     operation_summary='Добавление сотрудников в отделы',
     operation_description='''Создается сотрудник и добавляется в отдел.
 Сотруднику генерируется базовый логин и пароль и отправляется на почту сообщение о смене, после перехода по \

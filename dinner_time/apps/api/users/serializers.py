@@ -60,7 +60,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'middle_name', 'group', 'phone', 'email', 'department']
+        fields = ['id', 'first_name', 'last_name', 'middle_name', 'group', 'phone', 'email']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -74,7 +74,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'last_login', 'is_superuser', 'is_staff', 'is_active', 'date_joined', 'first_name',
-                  'last_name', 'middle_name', 'phone', 'email', 'department', 'email_verified', 'is_blocked',
+                  'last_name', 'middle_name', 'phone', 'email', 'email_verified', 'is_blocked',
                   'block_date', 'company_data', 'create_date', 'update_date', 'lft', 'rght', 'tree_id', 'level',
                   'parent', 'group', 'user_permissions', 'image_user']
 

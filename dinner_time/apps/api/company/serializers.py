@@ -1,7 +1,7 @@
 from phonenumber_field.phonenumber import PhoneNumber
 from rest_framework import serializers
 
-from apps.api.company.models import Company, Address, Department
+from apps.api.company.models import Company, Address
 from apps.api.users.models import User, Tariff, CustomGroup
 
 
@@ -32,30 +32,6 @@ class AddressesSerializer(serializers.ModelSerializer):
         instance = Address.objects.create(company=auth_company, **validated_data)
 
         return instance
-
-
-# TODO: УДАЛИТЬ
-class DepartmentSerializer(serializers.ModelSerializer):
-    """
-    Serializer for department. Used how main serializer and for create department.
-    """
-
-    total_number_users = serializers.SerializerMethodField('get_total_number_users')
-    users = serializers.SerializerMethodField('get_users')
-
-    def get_users(self, obj):
-        from apps.api.users.serializers import UserSerializer
-
-        users = UserSerializer(data=User.objects.filter(department=obj.id), many=True)
-        users.is_valid()
-        return users.data
-
-    def get_total_number_users(self, obj):
-        return User.objects.filter(department=obj.id).count()
-
-    class Meta:
-        model = Department
-        fields = ['id', 'name', 'company', 'total_number_users', 'users']
 
 
 class CompanyGetSerializer(serializers.ModelSerializer):
