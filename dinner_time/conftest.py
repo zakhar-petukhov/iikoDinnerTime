@@ -5,7 +5,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 from apps.api.common.models import Settings
-from apps.api.company.models import Company, Department
+from apps.api.company.models import Company, Address
 from apps.api.dinner.models import CategoryDish, Dish, DayMenu, Dinner, CompanyOrder, WeekMenu, DinnerDish
 from apps.api.users.models import User, Tariff, CustomGroup
 from apps.api.users.utils import create_ref_link_for_update_auth_data
@@ -17,43 +17,47 @@ def api_client():
 
 
 @pytest.fixture
-def create_user(db, django_user_model):
-    def make_user(**kwargs):
-        return django_user_model.objects.create_user(**kwargs)
-
-    return make_user
-
-
-@pytest.fixture
-def get_token_user(db, create_user, create_group):
-    user = create_user(phone='89313147222', first_name='Тест', last_name="Тестовов",
-                       email='test@protonmail.com', username='test', password='test', is_superuser=True,
-                       is_staff=True, group=create_group)
+def token_user(db, django_user_model, group):
+    user = django_user_model.objects.create_user(phone='89313147222', first_name='Тест', last_name="Тестовов",
+                                                 email='test@protonmail.com', username='test', password='test',
+                                                 is_superuser=True, is_staff=True, group=group())
     token, _ = Token.objects.get_or_create(user=user)
     return token, user
 
 
 @pytest.fixture
-def get_token_company(db, create_company):
-    company = create_company
+def token_company(db, company):
+    company = company
     token, _ = Token.objects.get_or_create(user=company)
     return token, company
 
 
 @pytest.fixture
-def create_group(db, create_tariff):
-    data = {
-        "name": "Айтишники",
-        "tariff": create_tariff
-    }
-    group, _ = CustomGroup.objects.get_or_create(**data)
+def group(db, tariff, token_company):
+    def make_group():
+        token, company = token_company
 
-    return group
+        delivery_address = Address.objects.create(**{
+            "city": "Санкт-Петербург",
+            "street": "Пушкина",
+            "house": "3",
+            "house_building": "1",
+            "apartment": "120",
+        })
+
+        return CustomGroup.objects.create(**{
+            "name": "Айтишники",
+            "tariff": tariff,
+            "company": company.company_data,
+            "address_for_delivery": delivery_address
+        })
+
+    return make_group
 
 
 @pytest.fixture
-def create_tariff(db, get_token_company):
-    token, company = get_token_company
+def tariff(db, token_company):
+    token, company = token_company
 
     data = {
         "name": "Лайт",
@@ -67,7 +71,7 @@ def create_tariff(db, get_token_company):
 
 
 @pytest.fixture
-def create_company(db, django_user_model):
+def company(db, django_user_model):
     data = {
         "company_data": {
             "company_name": "ООО Тест",
@@ -87,8 +91,7 @@ def create_company(db, django_user_model):
         "password": 'test_company',
     }
 
-    company_data = data['company_data']
-    company, _ = Company.objects.get_or_create(**company_data)
+    company, _ = Company.objects.get_or_create(**data['company_data'])
     data['company_data'] = company
     manager_with_company, _ = User.objects.get_or_create(**data)
 
@@ -96,82 +99,48 @@ def create_company(db, django_user_model):
 
 
 @pytest.fixture
-def create_department(db, django_user_model, get_token_company):
-    def make_department():
-        token, company = get_token_company
-        data = {
-            "name": "Любители вкусняшек",
-            "company": company.company_data
-        }
-
-        return Department.objects.create(**data)
-
-    return make_department
-
-
-@pytest.fixture
-def create_category_dish(django_user_model, get_token_company):
+def category_dish(django_user_model, token_company):
     def make_category_dish():
-        data = {
+        return CategoryDish.objects.create(**{
             "name": "Первые блюда"
-        }
-
-        return CategoryDish.objects.create(**data)
+        })
 
     return make_category_dish
 
 
 @pytest.fixture
-def create_second_category_dish(django_user_model, get_token_company):
+def second_category_dish(django_user_model, token_company):
     def make_category_dish():
-        data = {
+        return CategoryDish.objects.create(**{
             "name": "Вторые блюда"
-        }
-
-        return CategoryDish.objects.create(**data)
+        })
 
     return make_category_dish
 
 
 @pytest.fixture
-def create_category_dish(django_user_model, get_token_company):
-    def make_category_dish():
-        data = {
-            "name": "Первые блюда"
-        }
-
-        return CategoryDish.objects.create(**data)
-
-    return make_category_dish
-
-
-@pytest.fixture
-def create_dish(django_user_model, get_token_company, create_category_dish):
+def dish(django_user_model, token_company, category_dish):
     def make_dish():
-        data = {
+        return Dish.objects.create(**{
             "name": "Томатный суп",
             "cost": 90,
             "weight": 120,
             "description": "Томат, горох",
-            "category_dish": create_category_dish()
-        }
-
-        return Dish.objects.create(**data)
+            "category_dish": category_dish()
+        })
 
     return make_dish
 
 
 @pytest.fixture
-def create_complex_dish(django_user_model, get_token_company, create_dish):
+def complex_dish(django_user_model, token_company, dish):
     def make_complex_dish():
-        data = {
+        Settings.objects.create()  # create the settings to take effect
+        complex_dinner = Dish.objects.create(**{
             "name": "Комплексный обед №1",
             "cost": 160
-        }
-
-        Settings.objects.create()  # create the settings to take effect
-        complex_dinner = Dish.objects.create(**data)
-        complex_dinner.added_dish.add(create_dish())
+        })
+        complex_dinner.added_dish.add(dish())
 
         return complex_dinner
 
@@ -179,10 +148,10 @@ def create_complex_dish(django_user_model, get_token_company, create_dish):
 
 
 @pytest.fixture
-def create_menu(django_user_model, get_token_company, create_dish):
+def menu(django_user_model, token_company, dish):
     def make_menu():
         day_menu = DayMenu.objects.create()
-        day_menu.dish.add(create_dish())
+        day_menu.dish.add(dish())
 
         return day_menu
 
@@ -190,14 +159,13 @@ def create_menu(django_user_model, get_token_company, create_dish):
 
 
 @pytest.fixture
-def create_company_order(db, get_token_company, get_token_user, create_dish):
+def company_order(db, token_company, token_user, dish):
     def make_order(status=1):
-        token, company = get_token_company
-        token, user = get_token_user
-        dish = create_dish()
+        token, company = token_company
+        token, user = token_user
         dinner = Dinner.objects.create(user=user, company=company.company_data, status=status,
                                        date_action_begin='2020-08-31')
-        DinnerDish.objects.create(dish=dish, dinner=dinner, count_dish=3)
+        DinnerDish.objects.create(dish=dish(), dinner=dinner, count_dish=3)
         company_order = CompanyOrder.objects.create(company=company)
         company_order.dinners.add(dinner)
 
@@ -207,9 +175,9 @@ def create_company_order(db, get_token_company, get_token_user, create_dish):
 
 
 @pytest.fixture
-def create_referral_upid(db, get_token_user):
+def referral_upid(db, token_user):
     def make_referral_upid():
-        token, user = get_token_user
+        token, user = token_user
         upid = create_ref_link_for_update_auth_data(obj=user)
 
         return upid
@@ -218,8 +186,8 @@ def create_referral_upid(db, get_token_user):
 
 
 @pytest.fixture
-def create_week_menu(db, create_menu):
-    def make_create_week_menu():
+def week_menu(db, menu):
+    def make_week_menu():
         start_menu = datetime.now() - timedelta(days=5)
         close_menu = datetime.now() + timedelta(days=5)
 
@@ -227,7 +195,7 @@ def create_week_menu(db, create_menu):
                                             start_menu=start_menu.strftime("%Y-%m-%d"),
                                             close_menu=close_menu.strftime("%Y-%m-%d")
                                             )
-        week_menu.dishes.add(create_menu())
+        week_menu.dishes.add(menu())
         return week_menu
 
-    return make_create_week_menu
+    return make_week_menu

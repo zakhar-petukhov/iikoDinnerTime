@@ -6,9 +6,9 @@ from django.urls import reverse
 
 @pytest.mark.django_db
 class TestCompanyView:
-    def test_company_create(self, api_client, get_token_user):
+    def test_company_create(self, api_client, token_user):
         url = reverse('COMPANY:create_company')
-        token_user, user = get_token_user
+        token_user, user = token_user
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token_user.key)
 
         data = {
@@ -30,9 +30,9 @@ class TestCompanyView:
 
         assert response.status_code == 201
 
-    def test_list_all_company(self, api_client, get_token_user):
+    def test_list_all_company(self, api_client, token_user):
         url = reverse('COMPANY:all_companies')
-        token_user, user = get_token_user
+        token_user, user = token_user
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token_user.key)
 
         response = api_client.get(path=url)
@@ -42,10 +42,10 @@ class TestCompanyView:
         assert company_data[0]['company_data']['company_name'] == "ООО Тест"
         assert company_data[0]['first_name'] == "Тест"
 
-    def test_list_detail_company(self, api_client, get_token_user, create_company):
-        company = create_company
+    def test_list_detail_company(self, api_client, token_user, company):
+        company = company
         url = reverse('COMPANY:detail_company', kwargs={'company_id': company.id})
-        token_user, user = get_token_user
+        token_user, user = token_user
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token_user.key)
 
         response = api_client.get(path=url)
@@ -55,10 +55,10 @@ class TestCompanyView:
         assert company_data[0]['company_data']['company_name'] == "ООО Тест"
         assert company_data[0]['first_name'] == "Тест"
 
-    def test_change_detail_company(self, api_client, get_token_user, create_company):
-        company = create_company
+    def test_change_detail_company(self, api_client, token_user, company):
+        company = company
         url = reverse('COMPANY:change_detail_company', kwargs={'company_id': company.id})
-        token_user, user = get_token_user
+        token_user, user = token_user
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token_user.key)
 
         data = {
@@ -79,32 +79,36 @@ class TestCompanyView:
 
 @pytest.mark.django_db
 class TestDepartmentView:
-    def test_department_create(self, api_client, get_token_company):
-        token, company = get_token_company
-        url = reverse('COMPANY:department_create')
+    def test_group_create(self, api_client, token_company, tariff):
+        token, company = token_company
+        url = reverse('USERS:user_group-list')
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
 
         data = {
             "name": "IT отдел",
-            "company": company.company_data.id
+            "tariff": tariff.id
         }
 
         response = api_client.post(url, data=json.dumps(data), content_type='application/json')
 
         assert response.status_code == 201
 
-    def test_list_all_department(self, api_client, get_token_company):
-        token, company = get_token_company
-        url = reverse('COMPANY:department_list')
+    def test_list_all_group(self, api_client, token_company, group):
+        token, company = token_company
+        url = reverse('USERS:user_group-list')
+        group()
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+
         response = api_client.get(path=url)
+        group_response = json.loads(response.content)
 
         assert response.status_code == 200
+        assert group_response[0]['name'] == "Айтишники"
 
-    def test_add_employee_into_department(self, api_client, get_token_company, create_department):
-        token, company = get_token_company
-        create_department()
+    def test_add_employee_into_group(self, api_client, token_company, group):
+        token, company = token_company
         url = reverse('COMPANY:department_add_user')
+        group()
 
         data = {
             "first_name": "Тест",
@@ -119,35 +123,36 @@ class TestDepartmentView:
 
         assert response.status_code == 201
 
-    def test_list_detail_department(self, api_client, get_token_company, create_department):
-        url = reverse('COMPANY:department_detail', kwargs={'department_id': create_department().id})
-        token, company = get_token_company
+    def test_list_detail_group(self, api_client, token_company, group):
+        url = reverse('USERS:user_group-detail', kwargs={'pk': group().id})
+        token, company = token_company
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+
         response = api_client.get(path=url)
-        department_data = json.loads(response.content)
+        group_response = json.loads(response.content)
 
         assert response.status_code == 200
-        assert department_data[0]['name'] == "Любители вкусняшек"
+        assert group_response['name'] == "Айтишники"
 
-    def test_get_company_history_order(self, api_client, get_token_company):
-        token, company = get_token_company
+    def test_get_company_history_order(self, api_client, token_company):
+        token, company = token_company
         url = reverse('COMPANY:company_history_order')
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
         response = api_client.get(path=url)
 
         assert response.status_code == 200
 
-    def test_get_check_employee_order(self, api_client, get_token_company):
-        token, company = get_token_company
+    def test_get_check_employee_order(self, api_client, token_company):
+        token, company = token_company
         url = reverse('COMPANY:check_employee_order')
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
         response = api_client.get(path=url)
 
         assert response.status_code == 200
 
-    def test_get_detail_order(self, api_client, get_token_company, create_company_order):
-        token, company = get_token_company
-        url = reverse('COMPANY:company_history_order_detail', kwargs={'order_id': create_company_order().id})
+    def test_get_detail_order(self, api_client, token_company, company_order):
+        token, company = token_company
+        url = reverse('COMPANY:company_history_order_detail', kwargs={'order_id': company_order().id})
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
         response = api_client.get(path=url)
         order_data = json.loads(response.content)
@@ -155,15 +160,15 @@ class TestDepartmentView:
         assert response.status_code == 200
         assert order_data[0]['company']['company_data']['company_name'] == 'ООО Тест'
 
-    def test_create_order(self, api_client, get_token_company, create_company_order):
-        token, company = get_token_company
+    def test_create_order(self, api_client, token_company, company_order):
+        token, company = token_company
         url = reverse('COMPANY:send_employee_order_to_admin')
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
 
         success_data = {
             "dinners": [
                 {
-                    "id": create_company_order(status=3).id
+                    "id": company_order(status=3).id
                 }
             ]
         }
@@ -171,7 +176,7 @@ class TestDepartmentView:
         data_with_status_error = {
             "dinners": [
                 {
-                    "id": create_company_order().id
+                    "id": company_order().id
                 }
             ]
         }

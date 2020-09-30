@@ -6,9 +6,9 @@ from django.urls import reverse
 
 @pytest.mark.django_db
 class TestUserView:
-    def test_user_change_information(self, api_client, get_token_user, get_token_company):
-        token_company, company = get_token_company
-        token_user, user = get_token_user
+    def test_user_change_information(self, api_client, token_user, token_company):
+        token_company, company = token_company
+        token_user, user = token_user
         url = reverse('USERS:change_detail_information', kwargs={'pk': user.id})
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token_company.key)
 
@@ -24,8 +24,8 @@ class TestUserView:
         user_data['first_name'] = 'Пупкин'
         user_data['is_blocked'] = True
 
-    def test_user_get_detail_information(self, api_client, get_token_user):
-        token_user, user = get_token_user
+    def test_user_get_detail_information(self, api_client, token_user):
+        token_user, user = token_user
         url = reverse('USERS:detail_information', kwargs={"pk": user.id})
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token_user.key)
 
@@ -35,8 +35,8 @@ class TestUserView:
         assert response.status_code == 200
         assert user_data[0]['first_name'] == 'Тест'
 
-    def test_create_tariff(self, api_client, get_token_user):
-        token_user, user = get_token_user
+    def test_create_tariff(self, api_client, token_user):
+        token_user, user = token_user
         url = reverse('USERS:group_tariff-list')
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token_user.key)
 
@@ -52,8 +52,8 @@ class TestUserView:
         assert response.status_code == 201
         assert user_data['name'] == 'Лайт'
 
-    def test_get_all_tariff(self, api_client, get_token_user):
-        token_user, user = get_token_user
+    def test_get_all_tariff(self, api_client, token_user):
+        token_user, user = token_user
         url = reverse('USERS:group_tariff-list')
         api_client.credentials(HTTP_AUTHORIZATION='Token ' + token_user.key)
 
@@ -63,8 +63,8 @@ class TestUserView:
         assert response.status_code == 200
         assert user_data[0]['company_information'][0]['name'] == "Лайт"
 
-    def test_change_data_with_referral_upid(self, api_client, create_referral_upid):
-        url = reverse('USERS:user_change_auth_ref', kwargs={"referral_upid": create_referral_upid()})
+    def test_change_data_with_referral_upid(self, api_client, referral_upid):
+        url = reverse('USERS:user_change_auth_ref', kwargs={"referral_upid": referral_upid()})
 
         data = {
             "password": "TEST",
@@ -76,9 +76,9 @@ class TestUserView:
 
         assert response.status_code == 200
 
-    def test_user_create_dinner(self, api_client, get_token_user, create_dish):
-        token, user = get_token_user
-        dish_id = create_dish().id
+    def test_user_create_dinner(self, api_client, token_user, dish):
+        token, user = token_user
+        dish_id = dish().id
         url = reverse('USERS:user_add_dish')
 
         data = {
