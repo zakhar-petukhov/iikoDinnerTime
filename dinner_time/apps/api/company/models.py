@@ -59,16 +59,3 @@ class Address(Model):
     class Meta:
         verbose_name = 'Адрес'
         verbose_name_plural = 'Адрес'
-
-
-class Department(Model):
-    name = CharField(max_length=20, null=True, blank=True, verbose_name='Название')
-    company = ForeignKey('company.Company', on_delete=PROTECT, related_name='company_department', blank=True,
-                         null=True, verbose_name='Компания')
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = 'Департамент'
-        verbose_name_plural = 'Департамент'

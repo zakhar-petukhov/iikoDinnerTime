@@ -41,9 +41,6 @@ class User(AbstractUser, MPTTModel):
     group = ForeignKey('users.CustomGroup', on_delete=PROTECT, related_name='user_group', blank=True,
                        null=True, verbose_name='Группа')
 
-    department = ForeignKey('company.Department', on_delete=PROTECT, related_name='department_user', blank=True,
-                            null=True, verbose_name='Департамент')
-
     is_blocked = BooleanField(default=False, verbose_name='Заблокирован')
     block_date = DateTimeField(null=True, blank=True, verbose_name='Дата блокироваки')
 
