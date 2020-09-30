@@ -152,6 +152,7 @@ class TariffView(ModelViewSet):
                   )
 @method_decorator(name='update', decorator=swagger_auto_schema(
     operation_summary='Изменение группы.',
+    request_body=MainGroupSerializer,
     responses={
         '200': openapi.Response('Успешно.', GroupSerializer),
         '400': 'Неверный формат запроса'
@@ -182,7 +183,7 @@ class GroupView(ModelViewSet):
         return CustomGroup.objects.filter(company=self.request.auth.user.company_data)
 
     def get_serializer_class(self):
-        if self.request.method == 'POST':
+        if self.request.method == 'POST' or "PUT":
             return MainGroupSerializer
         else:
             return GroupSerializer
