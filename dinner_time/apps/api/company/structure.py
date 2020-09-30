@@ -24,22 +24,23 @@ def create_companies_structure(dinner_data):
     # We create our own structures, to be issued to the front.
     # Sort people by working groups and tie the lunches to them.
 
-    structure = None
+    structure = list()
 
     dinners_data = dinner_data['data']
     full_oversupply_tariff = dinner_data.get('full_oversupply_tariff')
 
     for data in dinners_data:
-        structure = list()
-
         company_structure = {'order_number': data['id'], 'company': data['company'], 'company_department': list()}
         date_action_begin = None
 
         for information in data['dinners']:
-            department_structure = {"department_name": None, "information": None, "full_address": None}
+            department_address = {"full_address": None, "data": list()}
+            department_structure = {"department_name": None, "information": None}
+
             department_information = dict()
+
             department_name = information['user']['group']['name']
-            full_address = information['user']['group']['address_for_delivery']
+            delivery_information = information['user']['group']['address_for_delivery']
 
             if not department_information.get(department_name):
                 department_information[department_name] = list()
@@ -70,10 +71,21 @@ def create_companies_structure(dinner_data):
 
             for name, information in department_information.items():
                 department_structure['department_name'] = name
-                department_structure['full_address'] = full_address.get('full_address') if full_address else None
                 department_structure['information'] = information
 
-                company_structure['company_department'].append(department_structure)
+                department_address['full_address'] = delivery_information['full_address']
+                department_address['data'].append(department_structure)
+
+            if not company_structure['company_department']:
+                company_structure['company_department'].append(department_address)
+
+            else:
+                for department in company_structure['company_department']:
+                    if department['full_address'] == delivery_information['full_address']:
+                        department['data'].append(department_structure)
+
+                    else:
+                        company_structure['company_department'].append(department_address)
 
         company_structure["dinners_oversupply_tariff"] = data['dinners_oversupply_tariff']
         company_structure['full_oversupply_tariff'] = full_oversupply_tariff

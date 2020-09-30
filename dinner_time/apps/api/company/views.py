@@ -285,7 +285,7 @@ class CompanyOrderView(ModelViewSet):
             if order_id:
                 return CompanyOrder.objects.filter(id=order_id).order_by('-id')
 
-            return CompanyOrder.objects.all().order_by('-id')
+            return CompanyOrder.objects.all().distinct().order_by('-id')
 
         else:
             company_id = self.request.user.id
