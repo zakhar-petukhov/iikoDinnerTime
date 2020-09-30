@@ -183,7 +183,7 @@ class GroupView(ModelViewSet):
         return CustomGroup.objects.filter(company=self.request.auth.user.company_data)
 
     def get_serializer_class(self):
-        if self.request.method == 'POST' or "PUT":
+        if self.request.method == 'POST' or self.request.method == "PUT":
             return MainGroupSerializer
         else:
             return GroupSerializer

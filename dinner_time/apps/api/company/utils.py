@@ -23,16 +23,26 @@ def create_user_or_company(company_name, serializer, parent=None, is_company=Fal
     return Response(status=status.HTTP_201_CREATED)
 
 
-def send_message(company_name, upid, data, is_company):
-    if is_company:
+def send_message(company_name, upid, data, is_company, is_recovery_password=False):
+    if is_company and not is_recovery_password:
         url = settings.URL_FOR_CHANGE_AUTH_DATA_COMPANY + upid
         header, body = send_message_for_change_auth_data_company(company_name=company_name)
+        text_password = "Установить пароль"
+
+    elif is_recovery_password:
+        change_url = settings.URL_FOR_CHANGE_AUTH_DATA_COMPANY if is_company else settings.URL_FOR_RECOVERY_PASSWORD_USER
+        url = change_url + upid
+        header, body = send_message_for_recovery_password()
+        text_password = "Изменить пароль"
+
     else:
         url = settings.URL_FOR_CHANGE_AUTH_DATA_USER + upid
         header, body = send_message_for_change_auth_data_client(company_name=company_name)
+        text_password = "Установить пароль"
 
     message_data = {"welcome_message": body,
-                    "registration_link": url}
+                    "registration_link": url,
+                    "text_password": text_password}
 
     email_html = get_template('registration_message.html')
     email_text = get_template('registration_message.txt')
@@ -47,4 +57,3 @@ def send_message(company_name, upid, data, is_company):
         [data.get('email')],
         html_message=html_content
     )
-

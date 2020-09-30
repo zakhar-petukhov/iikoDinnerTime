@@ -47,6 +47,15 @@ class PasswordChangeSerializer(serializers.Serializer):
         return value
 
 
+class RecoveryPasswordSerializer(serializers.Serializer):
+    """
+    A user serializer for recovery password
+    """
+    email = serializers.CharField()
+    password = serializers.CharField()
+    upid = serializers.CharField()
+
+
 class ChangeRegAuthDataSerializer(serializers.ModelSerializer):
     """
     A serializer for update password when clicking on the registration link

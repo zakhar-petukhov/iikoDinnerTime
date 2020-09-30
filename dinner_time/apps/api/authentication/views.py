@@ -10,10 +10,10 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from apps.api.users.serializers import EmptySerializer
 from apps.api.common.models import ReferralLink
+from apps.api.users.serializers import EmptySerializer
 from .serializers import *
-from .utils import get_and_authenticate_user
+from .utils import get_and_authenticate_user, create_upid_send_message
 
 
 @method_decorator(name='login', decorator=swagger_auto_schema(
@@ -43,12 +43,22 @@ from .utils import get_and_authenticate_user
     }
 )
                   )
+@method_decorator(name='password_reset', decorator=swagger_auto_schema(
+    operation_description='Пользоваель вводит существующий и новый пароль',
+    operation_summary='Смена пароля',
+    responses={
+        '202': openapi.Response('Успешно'),
+        '400': 'Неверный формат запроса'
+    }
+)
+                  )
 class AuthViewSet(GenericViewSet):
     permission_classes = [AllowAny, ]
     serializer_class = EmptySerializer
     serializer_classes = {
         'login': UserLoginSerializer,
         'password_change': PasswordChangeSerializer,
+        'password_reset': RecoveryPasswordSerializer,
     }
 
     @action(methods=['POST'], detail=False)
@@ -74,6 +84,23 @@ class AuthViewSet(GenericViewSet):
         serializer.is_valid(raise_exception=True)
         request.user.set_password(serializer.validated_data['new_password'])
         request.user.save()
+        return Response(status=status.HTTP_202_ACCEPTED)
+
+    @action(methods=['PUT'], detail=False, permission_classes=[])
+    def password_reset(self, request):
+        email = request.data.get('email')
+        upid = request.data.get('upid')
+        password = request.data.get('password')
+
+        if email:
+            create_upid_send_message(email)
+
+        elif upid:
+            user = get_object_or_404(User, ref_link__upid=upid, ref_link__is_active=True)
+            user.set_password(password)
+            user.ref_link.update(is_active=False)
+            user.save()
+
         return Response(status=status.HTTP_202_ACCEPTED)
 
     def get_serializer_class(self):
