@@ -38,7 +38,7 @@ class Company(Model):
         verbose_name_plural = 'Компания'
 
 
-class Address(Model):
+class DeliveryAddress(Model):
     company = ForeignKey('company.Company', on_delete=PROTECT, related_name='company_address', blank=True,
                          null=True, verbose_name='Компания')
 
