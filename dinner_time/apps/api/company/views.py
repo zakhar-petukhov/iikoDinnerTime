@@ -334,7 +334,7 @@ class AddressesView(ModelViewSet):
     permission_classes = [IsCompanyAuthenticated]
 
     def get_queryset(self):
-        return Address.objects.filter(company=self.request.auth.user.company_data)
+        return DeliveryAddress.objects.filter(company=self.request.auth.user.company_data)
 
 
 @method_decorator(name='post', decorator=swagger_auto_schema(

@@ -1,7 +1,7 @@
 from phonenumber_field.phonenumber import PhoneNumber
 from rest_framework import serializers
 
-from apps.api.company.models import Company, Address
+from apps.api.company.models import Company, DeliveryAddress
 from apps.api.users.models import User, Tariff, CustomGroup
 
 
@@ -24,12 +24,12 @@ class AddressesSerializer(serializers.ModelSerializer):
     """
 
     class Meta:
-        model = Address
+        model = DeliveryAddress
         fields = ['id', 'company', 'city', 'street', 'house', 'house_building', 'apartment', 'full_address']
 
     def create(self, validated_data):
         auth_company = self.context['request'].auth.user.company_data
-        instance = Address.objects.create(company=auth_company, **validated_data)
+        instance = DeliveryAddress.objects.create(company=auth_company, **validated_data)
 
         return instance
 

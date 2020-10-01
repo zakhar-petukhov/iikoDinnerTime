@@ -3,7 +3,7 @@ import uuid
 from django.contrib.auth import get_user_model
 
 from apps.api.common.models import ReferralLink
-from apps.api.company.models import Company
+from apps.api.company.models import Company, DeliveryAddress
 
 
 def generate_random_password_username():
@@ -23,6 +23,13 @@ def create_user_account(email, first_name="", last_name="", parent=None, **extra
 
     if company_data:
         company = Company.objects.create(**company_data)
+        DeliveryAddress.objects.create(company=company,
+                                       city=company_data.get('city'),
+                                       street=company_data.get('street'),
+                                       house=company_data.get('house'),
+                                       house_building=company_data.get('house_building'),
+                                       apartment=company_data.get('apartment')
+                                       )
         extra_fields['company_data'] = company
 
     user = get_user_model().objects.create_user(

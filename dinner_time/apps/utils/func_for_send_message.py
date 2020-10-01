@@ -12,8 +12,11 @@ def send_message_for_change_auth_data_client(company_name):
     return header, body
 
 
-def send_message_for_recovery_password():
+def send_message_for_recovery_password(login):
     header = 'Изменения пароля.'
-    body = 'Для изменения пароля перейдите по ссылки ниже'
+    body = f'''
+Ваш логин: {login}
 
+Для изменения пароля перейдите по ссылке ниже:
+'''
     return header, body
