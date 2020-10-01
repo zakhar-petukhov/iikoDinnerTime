@@ -5,7 +5,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 from apps.api.common.models import Settings
-from apps.api.company.models import Company, Address
+from apps.api.company.models import Company, DeliveryAddress
 from apps.api.dinner.models import CategoryDish, Dish, DayMenu, Dinner, CompanyOrder, WeekMenu, DinnerDish
 from apps.api.users.models import User, Tariff, CustomGroup
 from apps.api.users.utils import create_ref_link_for_update_auth_data
@@ -37,7 +37,7 @@ def group(db, tariff, token_company):
     def make_group():
         token, company = token_company
 
-        delivery_address = Address.objects.create(**{
+        delivery_address = DeliveryAddress.objects.create(**{
             "city": "Санкт-Петербург",
             "street": "Пушкина",
             "house": "3",
