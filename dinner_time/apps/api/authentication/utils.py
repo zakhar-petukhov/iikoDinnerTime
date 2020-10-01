@@ -12,9 +12,6 @@ from apps.api.users.utils import create_ref_link_for_update_auth_data
 def get_and_authenticate_user(password, username=None):
     auth = CustomAuthenticationBackend()
     user = auth.authenticate(email_or_phone=username, password=password)
-    if user is None:
-        raise serializers.ValidationError("Некорректные учётные данные. Пожалуйста, попробуйте ещё раз")
-
     return user
 
 
@@ -30,6 +27,7 @@ def create_upid_send_message(email):
     else:
         referral_link = referral_link.first()
         referral_link.upid = ReferralLink.get_generate_upid()
+        referral_link.is_active = True
         referral_link.save()
 
         link = referral_link.upid
@@ -38,7 +36,7 @@ def create_upid_send_message(email):
     is_company = True if user.company_data else False
 
     send_message(company_name=None, upid=link, data={'email': email}, is_company=is_company,
-                 is_recovery_password=True)
+                 is_recovery_password=True, login=user.phone)
 
 
 class CustomAuthenticationBackend:
