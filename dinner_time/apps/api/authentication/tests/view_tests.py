@@ -19,11 +19,11 @@ def get_authorization(api_client, token_user, is_error=False, username='89313147
 
     if not is_error:
         assert response.status_code == 200
-        assert user_data['email'] == 'test@protonmail.com'
+        assert user_data['first_name'] == 'Тест'
 
     else:
         assert response.status_code == 400
-        assert user_data[0] == "Некорректные учётные данные. Пожалуйста, попробуйте ещё раз"
+        assert user_data['non_field_errors'][0] == 'Пользователь с таким юзернеймом и паролем не найден'
 
 
 @pytest.mark.django_db
@@ -40,7 +40,7 @@ class TestAuthenticationView:
         response_logout = json.loads(response.content)
 
         assert response.status_code == 200
-        assert response_logout['success'] == 'Успешный выход из системы'
+        assert response_logout == 'Успешный выход из системы'
 
     def test_change_password(self, api_client, token_user):
         url = reverse('AUTHENTICATION:authentication-password-change')
