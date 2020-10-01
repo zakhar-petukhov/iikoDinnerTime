@@ -3,31 +3,62 @@ from phonenumber_field.phonenumber import PhoneNumber
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
+from apps.api.authentication.utils import get_and_authenticate_user
 from apps.api.users.models import User
 
 
-class UserLoginSerializer(serializers.Serializer):
-    """
-    A user serializer for login the user
-    """
+class AuthUserSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=255, write_only=True)
+    password = serializers.CharField(max_length=128, write_only=True)
 
-    username = serializers.CharField(max_length=300, required=True)
-    password = serializers.CharField(required=True, write_only=True)
+    first_name = serializers.CharField(max_length=20, read_only=True)
+    last_name = serializers.CharField(max_length=20, read_only=True)
+    middle_name = serializers.CharField(max_length=20, read_only=True)
 
-
-class AuthUserSerializer(serializers.ModelSerializer):
-    """
-    A user serializer for authentication the user
-    """
+    auth_token = serializers.CharField(max_length=255, read_only=True)
 
     class Meta:
         model = User
         fields = ('id', 'email', 'first_name', 'last_name', 'is_active', 'is_staff', 'auth_token')
         read_only_fields = ('id', 'is_active', 'is_staff')
 
-    def get_auth_token(self, obj):
-        token, create = Token.objects.get_or_create(user=obj)
-        return token.key
+    def validate(self, data):
+        """
+        Validates user data.
+        """
+        username = data.get('username', None)
+        password = data.get('password', None)
+
+        if password is None:
+            raise serializers.ValidationError(
+                'Для входа в систему требуется пароль'
+            )
+
+        user = get_and_authenticate_user(username=username, password=password)
+
+        if user is None:
+            raise serializers.ValidationError(
+                'Пользователь с таким юзернеймом и паролем не найден'
+            )
+
+        if not user.is_active:
+            raise serializers.ValidationError(
+                'Этот пользователь был деактивирован'
+            )
+
+        if user.is_blocked:
+            raise serializers.ValidationError(
+                'Этот пользователь был заблокирован'
+            )
+
+        token, create = Token.objects.get_or_create(user=user)
+
+        return {
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'middle_name': user.middle_name,
+            'auth_token': token.key
+        }
 
 
 class PasswordChangeSerializer(serializers.Serializer):
