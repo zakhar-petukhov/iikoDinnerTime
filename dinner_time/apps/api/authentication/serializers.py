@@ -11,6 +11,7 @@ class AuthUserSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=255, write_only=True)
     password = serializers.CharField(max_length=128, write_only=True)
 
+    id = serializers.IntegerField(read_only=True)
     first_name = serializers.CharField(max_length=20, read_only=True)
     last_name = serializers.CharField(max_length=20, read_only=True)
     middle_name = serializers.CharField(max_length=20, read_only=True)
@@ -54,6 +55,7 @@ class AuthUserSerializer(serializers.Serializer):
         token, create = Token.objects.get_or_create(user=user)
 
         return {
+            'id': user.id,
             'first_name': user.first_name,
             'last_name': user.last_name,
             'middle_name': user.middle_name,

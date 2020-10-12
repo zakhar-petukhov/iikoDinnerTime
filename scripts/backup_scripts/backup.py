@@ -65,7 +65,7 @@ def upload_dump_to_server():
     ssh.connect(HOSTNAME, username=USERNAME, password=PASSWORD)
 
     ftp_client = ssh.open_sftp()
-    ftp_client.put(DB_FILENAME, f'/share/privobdump/db-{get_now_datetime_str()}.sql.gz.enc')
+    ftp_client.put(DB_FILENAME, f'/share/shluberdump/db-{get_now_datetime_str()}.sql.gz.enc')
     ftp_client.close()
 
     ssh.close()
@@ -86,7 +86,8 @@ def create_backup():
     remove_temp_files()
 
 
-schedule.every().day.at("10:30").do(create_backup)
+# schedule.every().day.at("10:30").do(create_backup)
+schedule.every(0.5).minutes.do(create_backup)
 
 if __name__ == "__main__":
     while True:

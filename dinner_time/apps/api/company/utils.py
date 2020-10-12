@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from rest_framework import status
 from rest_framework.response import Response
@@ -50,10 +50,6 @@ def send_message(company_name, upid, data, is_company, is_recovery_password=Fals
     html_content = email_html.render(message_data)
     text_content = email_text.render(message_data)
 
-    send_mail(
-        header,
-        text_content,
-        settings.EMAIL_ADDRESS,
-        [data.get('email')],
-        html_message=html_content
-    )
+    msg = EmailMultiAlternatives(header, text_content, settings.EMAIL_ADDRESS, [data.get('email')])
+    msg.attach_alternative(html_content, "text/html")
+    msg.send()
