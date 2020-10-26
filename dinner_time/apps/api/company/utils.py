@@ -1,6 +1,7 @@
 from django.conf import settings
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import get_template
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -44,12 +45,9 @@ def send_message(company_name, upid, data, is_company, is_recovery_password=Fals
                     "registration_link": url,
                     "text_password": text_password}
 
-    email_html = get_template('registration_message.html')
-    email_text = get_template('registration_message.txt')
+    html_content = render_to_string('registration_message.html', message_data)
+    text_content = strip_tags(html_content)
+    msg_html = render_to_string('registration_message.html', message_data)
 
-    html_content = email_html.render(message_data)
-    text_content = email_text.render(message_data)
-
-    msg = EmailMultiAlternatives(header, text_content, settings.EMAIL_ADDRESS, [data.get('email')])
-    msg.attach_alternative(html_content, "text/html")
-    msg.send()
+    send_mail(subject=header, message=text_content, from_email=settings.EMAIL_ADDRESS,
+              recipient_list=[data.get('email')], html_message=msg_html)

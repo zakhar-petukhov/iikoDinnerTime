@@ -43,7 +43,7 @@ services:
     build: .
     depends_on:
       - db
-    command: python scripts/backup.py
+    command: python scripts/backup_scripts/backup.py
 
 
 volumes:
