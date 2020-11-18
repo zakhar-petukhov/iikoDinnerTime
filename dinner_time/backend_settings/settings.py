@@ -70,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'apps.utils.exception_handler.ExceptionMiddleware'
 ]
 
 MIDDLEWARE_CLASSES = (
@@ -184,6 +185,8 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
+
+    'EXCEPTION_HANDLER': 'apps.utils.exception_handler.handle_exception',
 
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
 }
