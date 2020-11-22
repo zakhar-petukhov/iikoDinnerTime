@@ -63,7 +63,7 @@ def create_companies_structure(dinner_data):
                     "status": information['status'],
                     "status_name": information['status_name'],
                     "full_cost": information['full_cost'],
-                    "oversupply_tariff": information['oversupply_tariff'],
+                    "oversupply_tariff": information.get('oversupply_tariff', 0),
                 }
             })
 
