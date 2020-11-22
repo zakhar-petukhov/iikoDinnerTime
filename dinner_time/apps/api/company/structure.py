@@ -87,7 +87,7 @@ def create_companies_structure(dinner_data):
                     else:
                         company_structure['company_department'].append(department_address)
 
-        company_structure["dinners_oversupply_tariff"] = data['dinners_oversupply_tariff']
+        company_structure["dinners_oversupply_tariff"] = data.get('dinners_oversupply_tariff', 0)
         company_structure['full_oversupply_tariff'] = full_oversupply_tariff
         company_structure['full_cost'] = data['full_cost']
         company_structure['send_iiko'] = data['send_iiko']
