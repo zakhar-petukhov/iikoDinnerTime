@@ -7,7 +7,7 @@ def check_oversupply_tariff(serializer_data, search_key, return_key, for_admin=F
 
     if query_params:
         for tariff in serializer_data:
-            oversupply_tariff += tariff[search_key]
+            oversupply_tariff += tariff.get(search_key, 0)
 
     dinner_data = {
         return_key: oversupply_tariff,
