@@ -41,14 +41,14 @@ class DishViewSet(ModelViewSet):
     pagination_class = pagination.LimitOffsetPagination
 
     def get_object(self):
-        return get_object_or_404(Dish, id=self.kwargs.get("dish_id"))
+        return get_object_or_404(Dish, id=self.kwargs.get("dish_id"), is_active=True)
 
     def get_queryset(self):
         dish_id = self.kwargs.get('dish_id')
         if dish_id:
-            return Dish.objects.filter(id=dish_id, for_complex=False)
+            return Dish.objects.filter(id=dish_id, for_complex=False, is_active=True)
 
-        return Dish.objects.filter(for_complex=False)
+        return Dish.objects.filter(for_complex=False, is_active=True)
 
 
 @method_decorator(name='list', decorator=swagger_auto_schema(
