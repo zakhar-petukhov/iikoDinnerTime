@@ -16,6 +16,7 @@ def get_authorization(api_client, token_user, is_error=False, username='89313147
     api_client.credentials(HTTP_AUTHORIZATION='Token ' + token_user.key)
     response = api_client.post(url, data=json.dumps(data), content_type='application/json')
     user_data = json.loads(response.content)
+    print(user_data)
 
     if not is_error:
         assert response.status_code == 200
@@ -23,7 +24,7 @@ def get_authorization(api_client, token_user, is_error=False, username='89313147
 
     else:
         assert response.status_code == 400
-        assert user_data['non_field_errors'][0] == 'Пользователь с таким юзернеймом и паролем не найден'
+        assert user_data['error_text'] == 'Пользователь с таким юзернеймом и паролем не найден'
 
 
 @pytest.mark.django_db
@@ -70,7 +71,7 @@ class TestAuthenticationView:
         response_change_password = json.loads(response.content)
 
         assert response.status_code == 400
-        assert response_change_password['current_password'][0] == 'Текущий пароль не совпадает'
+        assert response_change_password['error_text'] == 'Текущий пароль не совпадает'
 
     def test_error_login_username(self, api_client, token_user):
         get_authorization(api_client, token_user, is_error=True, username='hello_people@mail.ru')

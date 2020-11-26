@@ -198,10 +198,10 @@ class TestDepartmentView:
         req_data = json.loads(response.content)
 
         assert response.status_code == 400
-        assert req_data['dinners'][0] == 'Статус заказа должен быть "Подтвержден"'
+        assert req_data['error_text'] == 'Статус заказа должен быть "Подтвержден"'
 
         response = api_client.post(url, data=json.dumps(data_with_id_error), content_type='application/json')
         req_data = json.loads(response.content)
 
         assert response.status_code == 400
-        assert req_data['dinners'][0] == "Такого id заказа не существует"
+        assert req_data['error_text'] == "Такого id заказа не существует"
