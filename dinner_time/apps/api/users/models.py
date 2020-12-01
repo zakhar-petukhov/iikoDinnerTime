@@ -16,7 +16,7 @@ class CustomGroup(Model):
     company = ForeignKey('company.Company', on_delete=PROTECT, related_name='groups_company', blank=True,
                          null=True, verbose_name='Компания')
 
-    address_for_delivery = ForeignKey('company.DeliveryAddress', on_delete=PROTECT,
+    address_for_delivery = ForeignKey('company.DeliveryAddress', on_delete=CASCADE,
                                       related_name='group_delivery_address',
                                       blank=True, null=True, verbose_name='Адрес доставки')
 
